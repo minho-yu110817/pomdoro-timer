@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Married Life Pomodoro</title>
+    <style>
+        @font-face {
+            font-family: 'KerisKeduLine';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-3@1.0/KERISKEDU_Line.woff2') format('woff2');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #1d1d1f;
+            --quote-color: #86868b;
+            --accent-color: #ff3b30;
+            --break-color: #1db954;
+            --player-bg: #f5f5f7;
+        }
+
+        [data-theme='dark'] {
+            --bg-color: #121212;
+            --text-main: #ffffff;
+            --quote-color: #a1a1a6;
+            --player-bg: #282828;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: all 0.5s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        /* 🎵 스포티파이 스타일 음악 바 */
+        .music-player {
+            position: fixed;
+            top: 20px;
+            display: flex;
+            align-items: center;
+            background: var(--player-bg);
+            padding: 10px 20px;
+            border-radius: 50px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        /* 🖼️ 보내주신 공식 OST 커버 적용 */
+        .album-art {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            background-image: url('https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/03/a1/7b/03a17b02-ec6b-ef7c-1558-b81ea2801139/00050087145095.rgb.jpg/592x592bb.webp');
+            background-size: cover;
+            background-position: center;
+            margin-right: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .track-info { flex-grow: 1; }
+        .track-name { font-size: 0.85rem; font-weight: bold; margin-bottom: 2px; }
+        .artist-name { font-size: 0.75rem; color: var(--quote-color); }
+
+        .theme-btn {
+            position: fixed; top: 30px; right: 30px;
+            background: none; border: 1px solid var(--quote-color);
+            color: var(--text-main); padding: 6px 14px;
+            border-radius: 20px; cursor: pointer; font-size: 0.75rem;
+            z-index: 11;
+        }
+
+        /* 명언 섹션 */
+        .quote-container {
+            margin-top: 60px;
+            margin-bottom: 10px;
+            text-align: center;
+            padding: 0 30px;
+        }
+        .quote-text { 
+            font-size: 1rem; 
+            font-style: italic; 
+            color: var(--text-main); 
+            margin-bottom: 10px; 
+            line-height: 1.5;
+        }
+        .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
+
+        /* 중앙 정렬 레이아웃 */
+        #main-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #timer {
+            font-family: 'KerisKeduLine', sans-serif;
+            font-size: clamp(5rem, 24vw, 11rem);
+            margin: 0;
+            color: var(--accent-color);
+            transition: color 0.5s ease;
+        }
+        #timer.break-mode { color: var(--break-color); }
+
+        .session-info { font-size: 0.8rem; margin-bottom: 45px; letter-spacing: 0.3rem; opacity: 0.4; }
+
+        .buttons { display: flex; gap: 15px; justify-content: center; width: 100%; }
+        .btn {
+            outline: none; cursor: pointer; border: none;
+            padding: 18px 40px; border-radius: 35px;
+            font-size: 0.85rem; font-weight: 800;
+            transition: all 0.3s ease;
+            background: var(--text-main); color: var(--bg-color);
+        }
+        .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255,59,48,0.2); }
+        .break-mode-active .btn-start { background-color: var(--break-color); box-shadow: 0 10px 20px rgba(29,185,84,0.2); }
+        .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
+        .btn:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+    <source src="Up - Married Life.mp3" type="audio/mpeg">
+</audio>
+
+<div class="music-player">
+    <div class="album-art"></div>
+    <div class="track-info">
+        <div class="track-name">Married Life (From "Up")</div>
+        <div class="artist-name">Michael Giacchino</div>
+    </div>
+    <div id="play-status" style="font-size: 0.7rem; color: var(--break-color); font-weight: bold; margin-left: 10px;">READY</div>
+</div>
+
+<button class="theme-btn" onclick="toggleTheme()">THEME</button>
+
+<div class="quote-container">
+    <div class="quote-text">
+        "The great pleasure in life is doing what people say you cannot do."<br>
+        <span style="font-size: 0.85rem; font-style: normal; opacity: 0.7; display: inline-block; margin-top: 8px;">
+            인생의 큰 즐거움은 사람들이 '너는 할 수 없어'라고 말하는 일을 해내는 것이다.
+        </span>
+    </div>
+    <div class="quote-author">— Walter Bagehot</div>
+</div>
+
+<div id="main-wrapper">
+    <div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
+    <div class="session-info" id="session-count">ROUND 1 / 4</div>
+    
+    <div class="buttons">
+        <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
+        <button class="btn btn-start" onclick="startTimer()">START</button>
+        <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 25 * 60;
+    let timerId = null;
+    let isWorking = true;
+    let sessionCount = 1;
+
+    const timerDisplay = document.getElementById('timer');
+    const sessionDisplay = document.getElementById('session-count');
+    const wrapper = document.getElementById('main-wrapper');
+    const music = document.getElementById('bgMusic');
+    const playStatus = document.getElementById('play-status');
+
+    function updateDisplay() {
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        timerDisplay.innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
+        
+        if (!isWorking) {
+            timerDisplay.classList.add('break-mode');
+            wrapper.classList.add('break-mode-active');
+        } else {
+            timerDisplay.classList.remove('break-mode');
+            wrapper.classList.remove('break-mode-active');
+        }
+    }
+
+    function startTimer() {
+        if (timerId !== null) return;
+        music.play().catch(e => console.log("Start button interaction required"));
+        playStatus.textContent = "PLAYING";
+        timerId = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+            if (timeLeft === 0) {
+                clearInterval(timerId);
+                timerId = null;
+                handleSessionEnd();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerId);
+        timerId = null;
+        music.pause();
+        playStatus.textContent = "PAUSED";
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        isWorking = true;
+        sessionCount = 1;
+        timeLeft = 25 * 60;
+        sessionDisplay.textContent = `ROUND 1 / 4`;
+        music.currentTime = 0;
+        updateDisplay();
+    }
+
+    function handleSessionEnd() {
+        if (isWorking) {
+            if (sessionCount >= 4) {
+                alert("완벽하게 마쳤습니다! 고생하셨어요.");
+                resetTimer();
+                return;
+            }
+            isWorking = false;
+            timeLeft = 5 * 60;
+        } else {
+            sessionCount++;
+            isWorking = true;
+            timeLeft = 25 * 60;
+        }
+        sessionDisplay.textContent = `ROUND ${sessionCount} / 4`;
+        updateDisplay();
+        startTimer();
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', targetTheme);
+    }
+
+    updateDisplay();
+</script>
+
+</body>
+</html>
+
