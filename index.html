@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Focus Procedural Audio</title>
+    <title>Nature Focus Timer</title>
     <style>
         @font-face {
             font-family: 'KerisKeduLine';
@@ -39,7 +39,7 @@
         .music-player {
             position: fixed; top: 25px; display: flex; align-items: center;
             background: var(--player-bg); padding: 10px 25px; border-radius: 50px;
-            width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 10;
+            width: 90%; max-width: 520px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 10;
         }
 
         .track-info { flex-grow: 1; display: flex; flex-direction: column; }
@@ -64,15 +64,9 @@
             z-index: 11; opacity: 0.7;
         }
 
-        .quote-container { margin-top: 60px; text-align: center; padding: 0 40px; }
-        .quote-text { font-size: 1rem; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
-        .quote-author { font-size: 0.7rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
-
-        #main-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 15px;}
-        #timer { font-family: 'KerisKeduLine', sans-serif; font-size: clamp(5rem, 24vw, 11rem); margin: 0; color: var(--accent-color); }
+        #timer { font-family: 'KerisKeduLine', sans-serif; font-size: clamp(5rem, 24vw, 11rem); margin: 20px 0; color: var(--accent-color); }
         #timer.break-mode { color: var(--break-color); }
-        .session-info { font-size: 0.8rem; margin-bottom: 40px; letter-spacing: 0.3rem; opacity: 0.3; }
-
+        
         .buttons { display: flex; gap: 15px; }
         .btn {
             outline: none; cursor: pointer; border: none; padding: 16px 38px; border-radius: 30px;
@@ -85,15 +79,17 @@
 </head>
 <body>
 
+<audio id="ambientAudio" loop preload="auto"></audio>
+
 <div class="music-player">
     <div class="track-info">
         <div class="track-status" id="play-status">READY</div>
-        <div class="track-name" id="mode-display">Synthetic Rain</div>
+        <div class="track-name" id="mode-display">Rainy Mood</div>
     </div>
     <div class="noise-selector">
         <button class="noise-btn active" id="btn-rain" onclick="changeAmbient('rain', this)">RAIN</button>
-        <button class="noise-btn" id="btn-cafe" onclick="changeAmbient('cafe', this)">CAFE</button>
         <button class="noise-btn" id="btn-fire" onclick="changeAmbient('fire', this)">FIRE</button>
+        <button class="noise-btn" id="btn-water" onclick="changeAmbient('waterfall', this)">WATERFALL</button>
         <button class="noise-btn" id="btn-none" onclick="changeAmbient('none', this)">NONE</button>
         <div class="indicator" id="indicator"></div>
     </div>
@@ -101,75 +97,28 @@
 
 <button class="theme-btn" onclick="toggleTheme()">MODE</button>
 
-<div class="quote-container">
-    <div class="quote-text">
-        "The great pleasure in life is doing what people say you cannot do."<br>
-        <span style="font-size: 0.85rem; font-style: normal; opacity: 0.6; display: inline-block; margin-top: 5px;">
-            인생의 큰 즐거움은 사람들이 '너는 할 수 없어'라고 말하는 일을 해내는 것이다.
-        </span>
-    </div>
-    <div class="quote-author">— Walter Bagehot</div>
-</div>
+<div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
 
-<div id="main-wrapper">
-    <div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
-    <div class="session-info" id="session-count">ROUND 1 / 4</div>
-    
-    <div class="buttons">
-        <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
-        <button class="btn btn-start" onclick="startTimer()">START</button>
-        <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
-    </div>
+<div class="buttons">
+    <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
+    <button class="btn btn-start" onclick="startTimer()">START</button>
+    <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
 </div>
 
 <script>
-    // 🔊 자체 사운드 합성 엔진 (Web Audio API)
-    let audioCtx, mainGain, noiseNode, filterNode;
-    let currentMode = 'rain';
+    const localFiles = {
+        rain: 'rain.mp3',
+        fire: 'fire.mp3',
+        waterfall: 'waterfall.mp3',
+        none: ''
+    };
 
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            mainGain = audioCtx.createGain();
-            mainGain.connect(audioCtx.destination);
+    const modeNames = { rain: 'Rainy Mood', fire: 'Crackling Fire', waterfall: 'Deep Waterfall', none: 'Muted' };
 
-            const bufferSize = 2 * audioCtx.sampleRate;
-            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
-
-            noiseNode = audioCtx.createBufferSource();
-            noiseNode.buffer = noiseBuffer;
-            noiseNode.loop = true;
-
-            filterNode = audioCtx.createBiquadFilter();
-            noiseNode.connect(filterNode);
-            filterNode.connect(mainGain);
-            noiseNode.start();
-        }
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        updateSoundProfile();
-    }
-
-    function updateSoundProfile() {
-        if (!filterNode) return;
-        if (currentMode === 'rain') {
-            filterNode.type = 'lowpass'; filterNode.frequency.setTargetAtTime(1200, audioCtx.currentTime, 0.1);
-            mainGain.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.1);
-        } else if (currentMode === 'cafe') {
-            filterNode.type = 'bandpass'; filterNode.frequency.setTargetAtTime(800, audioCtx.currentTime, 0.1);
-            mainGain.gain.setTargetAtTime(0.04, audioCtx.currentTime, 0.1);
-        } else if (currentMode === 'fire') {
-            filterNode.type = 'lowpass'; filterNode.frequency.setTargetAtTime(400, audioCtx.currentTime, 0.1);
-            mainGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.1);
-        } else {
-            mainGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-        }
-    }
-
-    // ⏱️ 타이머 및 UI 로직
-    let timeLeft = 25 * 60, timerId = null, isWorking = true;
-    const playStatus = document.getElementById('play-status'), indicator = document.getElementById('indicator');
+    let timeLeft = 25 * 60, timerId = null, isWorking = true, currentMode = 'rain';
+    const audio = document.getElementById('ambientAudio');
+    const playStatus = document.getElementById('play-status');
+    const indicator = document.getElementById('indicator');
 
     function changeAmbient(type, btn) {
         currentMode = type;
@@ -177,22 +126,37 @@
         btn.classList.add('active');
         indicator.style.width = `${btn.offsetWidth}px`;
         indicator.style.left = `${btn.offsetLeft}px`;
-        document.getElementById('mode-display').textContent = type.toUpperCase();
-        if (timerId) { initAudio(); updateSoundProfile(); }
+        document.getElementById('mode-display').textContent = modeNames[type];
+
+        if (type === 'none') {
+            audio.pause();
+            if (timerId) playStatus.textContent = "MUTED";
+        } else {
+            audio.src = localFiles[type];
+            if (timerId) {
+                audio.play().catch(e => console.log("Play error"));
+                playStatus.textContent = "PLAYING";
+            }
+        }
     }
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         document.getElementById('timer').innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
+        
+        audio.volume = isWorking ? 0.5 : 0.2;
         if (!isWorking) document.getElementById('timer').classList.add('break-mode');
         else document.getElementById('timer').classList.remove('break-mode');
     }
 
     function startTimer() {
         if (timerId !== null) return;
-        initAudio();
-        playStatus.textContent = currentMode === 'none' ? "MUTED" : "PLAYING";
+        if (currentMode !== 'none') {
+            if (!audio.src) audio.src = localFiles[currentMode];
+            audio.play().catch(err => alert("파일을 찾을 수 없습니다: " + localFiles[currentMode]));
+            playStatus.textContent = "PLAYING";
+        }
         timerId = setInterval(() => {
             timeLeft--; updateDisplay();
             if (timeLeft === 0) { clearInterval(timerId); timerId = null; handleSessionEnd(); }
@@ -201,7 +165,7 @@
 
     function pauseTimer() {
         clearInterval(timerId); timerId = null;
-        if (mainGain) mainGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+        audio.pause();
         playStatus.textContent = "PAUSED";
     }
 
