@@ -44,7 +44,6 @@
             overflow: hidden;
         }
 
-        /* 🎵 High-End Player Bar */
         .music-player {
             position: fixed;
             top: 25px;
@@ -68,7 +67,6 @@
             text-transform: uppercase;
         }
 
-        /* 텍스트 셀렉터 스타일 */
         .noise-selector { 
             display: flex; 
             gap: 18px; 
@@ -124,7 +122,7 @@
 </head>
 <body>
 
-<audio id="noiseAudio" loop preload="auto"></audio>
+<audio id="noiseAudio" loop preload="auto" crossorigin="anonymous"></audio>
 
 <div class="music-player">
     <div class="track-info">
@@ -163,10 +161,19 @@
 </div>
 
 <script>
+    // 더 안정적인 공개 오디오 소스로 교체
     const realNoise = {
-        rain: 'https://actions.google.com/sounds/v1/water/rain_on_roof.ogg',
-        cafe: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
-        fire: 'https://actions.google.com/sounds/v1/ambiences/fireplace.ogg',
+        rain: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', // 빗소리와 유사한 부드러운 화이트노이즈 대용
+        cafe: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        fire: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+        none: ''
+    };
+
+    // 만약 위 주소도 안나온다면 아래 주석을 해제하고 시도해보세요 (샘플 노이즈 사이트들)
+    const fallbackNoise = {
+        rain: 'https://lasonotheque.org/upload/mp3/1359.mp3', // 실제 빗소리
+        cafe: 'https://lasonotheque.org/upload/mp3/0951.mp3', // 사람들 웅성거림
+        fire: 'https://lasonotheque.org/upload/mp3/1513.mp3', // 불타는 소리
         none: ''
     };
 
@@ -179,7 +186,8 @@
     const indicator = document.getElementById('indicator');
     const playStatus = document.getElementById('play-status');
     
-    noiseAudio.src = realNoise[currentNoise];
+    // 초기 소리 설정
+    noiseAudio.src = fallbackNoise[currentNoise];
     noiseAudio.volume = 0.4;
 
     function moveIndicator(btn) {
@@ -197,10 +205,14 @@
             noiseAudio.pause();
             if (timerId !== null) playStatus.textContent = "MUTED";
         } else {
-            noiseAudio.src = realNoise[type];
+            noiseAudio.src = fallbackNoise[type];
+            noiseAudio.load(); // 소스 변경 후 강제 로드
             if (timerId !== null) {
-                noiseAudio.play();
-                playStatus.textContent = "PLAYING";
+                const playPromise = noiseAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => { playStatus.textContent = "PLAYING"; })
+                               .catch(e => { playStatus.textContent = "ERROR"; });
+                }
             }
         }
     }
@@ -223,7 +235,7 @@
         if (timerId !== null) return;
         
         if (currentNoise !== 'none') {
-            noiseAudio.play();
+            noiseAudio.play().catch(e => console.log("재생 오류:", e));
             playStatus.textContent = "PLAYING";
         } else {
             playStatus.textContent = "MUTED";
