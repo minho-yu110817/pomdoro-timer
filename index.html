@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Focus Timer</title>
+    <title>Deep Focus Procedural Audio</title>
     <style>
         @font-face {
             font-family: 'KerisKeduLine';
@@ -31,89 +31,52 @@
         }
 
         body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            transition: all 0.5s ease;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+            margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; background-color: var(--bg-color); color: var(--text-main);
+            transition: all 0.5s ease; font-family: -apple-system, sans-serif; overflow: hidden;
         }
 
         .music-player {
-            position: fixed;
-            top: 25px;
-            display: flex;
-            align-items: center;
-            background: var(--player-bg);
-            padding: 8px 25px;
-            border-radius: 50px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            z-index: 10;
+            position: fixed; top: 25px; display: flex; align-items: center;
+            background: var(--player-bg); padding: 10px 25px; border-radius: 50px;
+            width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 10;
         }
 
-        .track-info { flex-grow: 1; display: flex; align-items: center; gap: 12px; }
-        .track-status { 
-            font-size: 0.65rem; 
-            font-weight: 900; 
-            letter-spacing: 0.1rem; 
-            color: var(--break-color);
-            text-transform: uppercase;
-        }
+        .track-info { flex-grow: 1; display: flex; flex-direction: column; }
+        .track-status { font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1rem; color: var(--break-color); text-transform: uppercase; margin-bottom: 2px; }
+        .track-name { font-size: 0.75rem; font-weight: 700; opacity: 0.8; }
 
-        .noise-selector { 
-            display: flex; 
-            gap: 18px; 
-            position: relative;
-        }
+        .noise-selector { display: flex; gap: 15px; position: relative; }
         .noise-btn {
-            background: none; border: none; cursor: pointer;
-            font-size: 0.72rem; font-weight: 700;
-            color: var(--quote-color);
-            padding: 10px 5px;
-            transition: color 0.3s ease;
-            letter-spacing: 0.05rem;
+            background: none; border: none; cursor: pointer; font-size: 0.7rem; font-weight: 700;
+            color: var(--quote-color); padding: 8px 4px; transition: color 0.3s ease;
         }
         .noise-btn.active { color: var(--text-main); }
         
         .indicator {
-            position: absolute;
-            bottom: 5px;
-            height: 2px;
-            background: var(--active-indicator);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 2px;
+            position: absolute; bottom: 0px; height: 2px; background: var(--active-indicator);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px;
         }
 
         .theme-btn {
-            position: fixed; top: 32px; right: 30px;
-            background: none; border: 1.2px solid var(--quote-color);
-            color: var(--text-main); padding: 5px 12px;
-            border-radius: 20px; cursor: pointer; font-size: 0.7rem; font-weight: 600;
+            position: fixed; top: 32px; right: 30px; background: none; border: 1.2px solid var(--quote-color);
+            color: var(--text-main); padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; font-weight: 600;
             z-index: 11; opacity: 0.7;
         }
 
-        .quote-container { margin-top: 70px; text-align: center; padding: 0 40px; }
+        .quote-container { margin-top: 60px; text-align: center; padding: 0 40px; }
         .quote-text { font-size: 1rem; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
         .quote-author { font-size: 0.7rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
 
-        #main-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 20px;}
+        #main-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 15px;}
         #timer { font-family: 'KerisKeduLine', sans-serif; font-size: clamp(5rem, 24vw, 11rem); margin: 0; color: var(--accent-color); }
         #timer.break-mode { color: var(--break-color); }
         .session-info { font-size: 0.8rem; margin-bottom: 40px; letter-spacing: 0.3rem; opacity: 0.3; }
 
         .buttons { display: flex; gap: 15px; }
         .btn {
-            outline: none; cursor: pointer; border: none;
-            padding: 16px 38px; border-radius: 30px;
-            font-size: 0.85rem; font-weight: 800;
-            transition: all 0.3s ease;
+            outline: none; cursor: pointer; border: none; padding: 16px 38px; border-radius: 30px;
+            font-size: 0.85rem; font-weight: 800; transition: all 0.3s ease;
             background: var(--text-main); color: var(--bg-color);
         }
         .btn-start { background-color: var(--accent-color); color: white; }
@@ -122,17 +85,16 @@
 </head>
 <body>
 
-<audio id="noiseAudio" loop preload="auto" crossorigin="anonymous"></audio>
-
 <div class="music-player">
     <div class="track-info">
         <div class="track-status" id="play-status">READY</div>
+        <div class="track-name" id="mode-display">Synthetic Rain</div>
     </div>
-    <div class="noise-selector" id="selector">
-        <button class="noise-btn active" onclick="changeNoise('rain', this)">RAIN</button>
-        <button class="noise-btn" onclick="changeNoise('cafe', this)">CAFE</button>
-        <button class="noise-btn" onclick="changeNoise('fire', this)">FIRE</button>
-        <button class="noise-btn" onclick="changeNoise('none', this)">NONE</button>
+    <div class="noise-selector">
+        <button class="noise-btn active" id="btn-rain" onclick="changeAmbient('rain', this)">RAIN</button>
+        <button class="noise-btn" id="btn-cafe" onclick="changeAmbient('cafe', this)">CAFE</button>
+        <button class="noise-btn" id="btn-fire" onclick="changeAmbient('fire', this)">FIRE</button>
+        <button class="noise-btn" id="btn-none" onclick="changeAmbient('none', this)">NONE</button>
         <div class="indicator" id="indicator"></div>
     </div>
 </div>
@@ -161,128 +123,101 @@
 </div>
 
 <script>
-    // 더 안정적인 공개 오디오 소스로 교체
-    const realNoise = {
-        rain: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', // 빗소리와 유사한 부드러운 화이트노이즈 대용
-        cafe: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-        fire: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-        none: ''
-    };
+    // 🔊 자체 사운드 합성 엔진 (Web Audio API)
+    let audioCtx, mainGain, noiseNode, filterNode;
+    let currentMode = 'rain';
 
-    // 만약 위 주소도 안나온다면 아래 주석을 해제하고 시도해보세요 (샘플 노이즈 사이트들)
-    const fallbackNoise = {
-        rain: 'https://lasonotheque.org/upload/mp3/1359.mp3', // 실제 빗소리
-        cafe: 'https://lasonotheque.org/upload/mp3/0951.mp3', // 사람들 웅성거림
-        fire: 'https://lasonotheque.org/upload/mp3/1513.mp3', // 불타는 소리
-        none: ''
-    };
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            mainGain = audioCtx.createGain();
+            mainGain.connect(audioCtx.destination);
 
-    let timeLeft = 25 * 60;
-    let timerId = null;
-    let isWorking = true;
-    let currentNoise = 'rain';
+            const bufferSize = 2 * audioCtx.sampleRate;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
 
-    const noiseAudio = document.getElementById('noiseAudio');
-    const indicator = document.getElementById('indicator');
-    const playStatus = document.getElementById('play-status');
-    
-    // 초기 소리 설정
-    noiseAudio.src = fallbackNoise[currentNoise];
-    noiseAudio.volume = 0.4;
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = noiseBuffer;
+            noiseNode.loop = true;
 
-    function moveIndicator(btn) {
-        indicator.style.width = `${btn.offsetWidth}px`;
-        indicator.style.left = `${btn.offsetLeft}px`;
+            filterNode = audioCtx.createBiquadFilter();
+            noiseNode.connect(filterNode);
+            filterNode.connect(mainGain);
+            noiseNode.start();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        updateSoundProfile();
     }
 
-    function changeNoise(type, btn) {
-        currentNoise = type;
+    function updateSoundProfile() {
+        if (!filterNode) return;
+        if (currentMode === 'rain') {
+            filterNode.type = 'lowpass'; filterNode.frequency.setTargetAtTime(1200, audioCtx.currentTime, 0.1);
+            mainGain.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.1);
+        } else if (currentMode === 'cafe') {
+            filterNode.type = 'bandpass'; filterNode.frequency.setTargetAtTime(800, audioCtx.currentTime, 0.1);
+            mainGain.gain.setTargetAtTime(0.04, audioCtx.currentTime, 0.1);
+        } else if (currentMode === 'fire') {
+            filterNode.type = 'lowpass'; filterNode.frequency.setTargetAtTime(400, audioCtx.currentTime, 0.1);
+            mainGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.1);
+        } else {
+            mainGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+        }
+    }
+
+    // ⏱️ 타이머 및 UI 로직
+    let timeLeft = 25 * 60, timerId = null, isWorking = true;
+    const playStatus = document.getElementById('play-status'), indicator = document.getElementById('indicator');
+
+    function changeAmbient(type, btn) {
+        currentMode = type;
         document.querySelectorAll('.noise-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        moveIndicator(btn);
-
-        if (type === 'none') {
-            noiseAudio.pause();
-            if (timerId !== null) playStatus.textContent = "MUTED";
-        } else {
-            noiseAudio.src = fallbackNoise[type];
-            noiseAudio.load(); // 소스 변경 후 강제 로드
-            if (timerId !== null) {
-                const playPromise = noiseAudio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => { playStatus.textContent = "PLAYING"; })
-                               .catch(e => { playStatus.textContent = "ERROR"; });
-                }
-            }
-        }
+        indicator.style.width = `${btn.offsetWidth}px`;
+        indicator.style.left = `${btn.offsetLeft}px`;
+        document.getElementById('mode-display').textContent = type.toUpperCase();
+        if (timerId) { initAudio(); updateSoundProfile(); }
     }
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         document.getElementById('timer').innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
-        
-        if (!isWorking) {
-            document.getElementById('timer').classList.add('break-mode');
-            if (currentNoise !== 'none') noiseAudio.volume = 0.2;
-        } else {
-            document.getElementById('timer').classList.remove('break-mode');
-            if (currentNoise !== 'none') noiseAudio.volume = 0.4;
-        }
+        if (!isWorking) document.getElementById('timer').classList.add('break-mode');
+        else document.getElementById('timer').classList.remove('break-mode');
     }
 
     function startTimer() {
         if (timerId !== null) return;
-        
-        if (currentNoise !== 'none') {
-            noiseAudio.play().catch(e => console.log("재생 오류:", e));
-            playStatus.textContent = "PLAYING";
-        } else {
-            playStatus.textContent = "MUTED";
-        }
-
+        initAudio();
+        playStatus.textContent = currentMode === 'none' ? "MUTED" : "PLAYING";
         timerId = setInterval(() => {
-            timeLeft--;
-            updateDisplay();
-            if (timeLeft === 0) {
-                clearInterval(timerId);
-                timerId = null;
-                handleSessionEnd();
-            }
+            timeLeft--; updateDisplay();
+            if (timeLeft === 0) { clearInterval(timerId); timerId = null; handleSessionEnd(); }
         }, 1000);
     }
 
     function pauseTimer() {
-        clearInterval(timerId);
-        timerId = null;
-        noiseAudio.pause();
+        clearInterval(timerId); timerId = null;
+        if (mainGain) mainGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         playStatus.textContent = "PAUSED";
     }
 
-    function resetTimer() {
-        pauseTimer();
-        isWorking = true;
-        timeLeft = 25 * 60;
-        playStatus.textContent = "READY";
-        updateDisplay();
-    }
-
-    function handleSessionEnd() {
-        isWorking = !isWorking;
-        timeLeft = isWorking ? 25 * 60 : 5 * 60;
-        updateDisplay();
-        startTimer();
-    }
-
+    function resetTimer() { pauseTimer(); isWorking = true; timeLeft = 25 * 60; updateDisplay(); }
+    function handleSessionEnd() { isWorking = !isWorking; timeLeft = isWorking ? 25 * 60 : 5 * 60; updateDisplay(); startTimer(); }
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
     }
 
-    window.onload = () => moveIndicator(document.querySelector('.noise-btn.active'));
-
+    window.onload = () => {
+        const firstBtn = document.getElementById('btn-rain');
+        indicator.style.width = `${firstBtn.offsetWidth}px`;
+        indicator.style.left = `${firstBtn.offsetLeft}px`;
+    };
     updateDisplay();
 </script>
-
 </body>
 </html>
