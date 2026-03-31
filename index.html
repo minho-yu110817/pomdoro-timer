@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Pomodoro</title>
+    <title>Pure Pomodoro</title>
     <style>
         @font-face {
             font-family: 'KerisKeduLine';
@@ -13,19 +13,17 @@
         }
 
         :root {
-            --bg-color: #fcfcfc;
+            --bg-color: #ffffff;
             --text-main: #1d1d1f;
+            --quote-color: #86868b;
             --accent-color: #ff3b30;
-            --break-color: #34c759;
-            --sub-text: #86868b;
-            --btn-bg: #f5f5f7;
+            --break-color: #1db954;
         }
 
         [data-theme='dark'] {
-            --bg-color: #000000;
+            --bg-color: #121212;
             --text-main: #ffffff;
-            --sub-text: #a1a1a6;
-            --btn-bg: #1c1c1e;
+            --quote-color: #a1a1a6;
         }
 
         body {
@@ -37,128 +35,91 @@
             height: 100vh;
             background-color: var(--bg-color);
             color: var(--text-main);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            transition: all 0.5s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
         }
 
-        /* 테마 변경 버튼 (설정 패널 대체) */
         .theme-btn {
-            position: fixed; top: 40px; right: 40px;
-            background: none; border: 1px solid var(--sub-text);
-            color: var(--sub-text); padding: 8px 18px;
-            border-radius: 30px; cursor: pointer; font-size: 0.75rem; 
-            font-weight: 600; transition: 0.3s;
-            letter-spacing: 0.05rem;
-        }
-        .theme-btn:hover { border-color: var(--text-main); color: var(--text-main); }
-
-        /* 명언 섹션: 간격 최적화 */
-        .quote-wrapper {
-            text-align: center;
-            margin-bottom: 80px;
-            padding: 0 30px;
-            max-width: 700px;
-            animation: fadeIn 1.2s ease-out;
-        }
-        .quote-ko {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            line-height: 1.5;
-            word-break: keep-all;
-        }
-        .quote-en {
-            font-size: 0.9rem;
-            color: var(--sub-text);
-            font-style: italic;
-            opacity: 0.8;
+            position: fixed; top: 30px; right: 30px;
+            background: none; border: 1px solid var(--quote-color);
+            color: var(--text-main); padding: 6px 14px;
+            border-radius: 20px; cursor: pointer; font-size: 0.75rem;
+            z-index: 11;
         }
 
-        /* 상태 및 세션 정보 */
-        .info-container {
-            text-align: center;
+        /* 명언 섹션 */
+        .quote-container {
             margin-bottom: 20px;
+            text-align: center;
+            padding: 0 30px;
         }
-        #status {
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 0.5rem;
-            text-transform: uppercase;
-            color: var(--sub-text);
-            margin-bottom: 8px;
+        .quote-text { 
+            font-size: 1rem; 
+            font-style: italic; 
+            color: var(--text-main); 
+            margin-bottom: 10px; 
+            line-height: 1.5;
         }
-        #session-count {
-            font-size: 0.75rem;
-            letter-spacing: 0.2rem;
-            opacity: 0.5;
+        .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
+
+        /* 중앙 정렬 레이아웃 */
+        #main-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
-        /* 타이머 숫자 */
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(7rem, 32vw, 16rem);
-            line-height: 0.85;
+            font-size: clamp(5rem, 24vw, 11rem);
             margin: 0;
-            color: var(--text-main);
+            color: var(--accent-color);
             transition: color 0.5s ease;
         }
-        #timer.focus-mode { color: var(--accent-color); }
         #timer.break-mode { color: var(--break-color); }
 
-        /* 컨트롤 버튼 그룹 */
-        .controls {
-            margin-top: 100px;
-            display: flex;
-            gap: 20px;
-        }
+        .session-info { font-size: 0.8rem; margin-bottom: 45px; letter-spacing: 0.3rem; opacity: 0.4; }
 
+        .buttons { display: flex; gap: 15px; justify-content: center; width: 100%; }
         .btn {
             outline: none; cursor: pointer; border: none;
-            padding: 20px 45px; border-radius: 50px;
-            font-size: 0.9rem; font-weight: 700;
+            padding: 18px 40px; border-radius: 35px;
+            font-size: 0.85rem; font-weight: 800;
             transition: all 0.3s ease;
-            background: var(--btn-bg);
-            color: var(--text-main);
+            background: var(--text-main); color: var(--bg-color);
         }
-        .btn:hover { transform: translateY(-3px); background: var(--text-main); color: var(--bg-color); }
-        
-        .btn-start { 
-            background: var(--accent-color); 
-            color: white; 
-            box-shadow: 0 10px 25px rgba(255, 59, 48, 0.15);
-        }
-        .btn-start.break-active {
-            background: var(--break-color);
-            box-shadow: 0 10px 25px rgba(52, 199, 89, 0.15);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255,59,48,0.2); }
+        .break-mode-active .btn-start { background-color: var(--break-color); box-shadow: 0 10px 20px rgba(29,185,84,0.2); }
+        .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
+        .btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-<button class="theme-btn" id="themeBtn" onclick="toggleTheme()">DARK MODE</button>
+<button class="theme-btn" onclick="toggleTheme()">THEME</button>
 
-<div class="quote-wrapper">
-    <div class="quote-ko">"가장 위대한 영광은 한 번도 실패하지 않음이 아니라, 실패할 때마다 다시 일어서는 데 있다."</div>
-    <div class="quote-en">The greatest glory lies not in never falling, but in rising every time we fall.</div>
+<div class="quote-container">
+    <div class="quote-text">
+        "The great pleasure in life is doing what people say you cannot do."<br>
+        <span style="font-size: 0.85rem; font-style: normal; opacity: 0.7; display: inline-block; margin-top: 8px;">
+            인생의 큰 즐거움은 사람들이 '너는 할 수 없어'라고 말하는 일을 해내는 것이다.
+        </span>
+    </div>
+    <div class="quote-author">— Walter Bagehot</div>
 </div>
 
-<div class="info-container">
-    <div id="status">Ready to Focus</div>
-    <div id="session-count">SESSION 1 / 4</div>
-</div>
-
-<div id="timer">25:00</div>
-
-<div class="controls">
-    <button class="btn" onclick="resetTimer()">RESET</button>
-    <button class="btn btn-start" id="startBtn" onclick="startTimer()">START</button>
-    <button class="btn" onclick="pauseTimer()">PAUSE</button>
+<div id="main-wrapper">
+    <div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
+    <div class="session-info" id="session-count">ROUND 1 / 4</div>
+    
+    <div class="buttons">
+        <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
+        <button class="btn btn-start" onclick="startTimer()">START</button>
+        <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
+    </div>
 </div>
 
 <script>
@@ -168,59 +129,39 @@
     let sessionCount = 1;
 
     const timerDisplay = document.getElementById('timer');
-    const statusLabel = document.getElementById('status');
-    const sessionLabel = document.getElementById('session-count');
-    const startBtn = document.getElementById('startBtn');
-    const themeBtn = document.getElementById('themeBtn');
+    const sessionDisplay = document.getElementById('session-count');
+    const wrapper = document.getElementById('main-wrapper');
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
-        timerDisplay.textContent = `${m}:${s}`;
+        timerDisplay.innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
         
-        if (timerId) {
-            if (isWorking) {
-                timerDisplay.className = 'focus-mode';
-                statusLabel.textContent = "Focusing";
-                statusLabel.style.color = "var(--accent-color)";
-                startBtn.className = "btn btn-start";
-            } else {
-                timerDisplay.className = 'break-mode';
-                statusLabel.textContent = "Resting";
-                statusLabel.style.color = "var(--break-color)";
-                startBtn.className = "btn btn-start break-active";
-            }
+        if (!isWorking) {
+            timerDisplay.classList.add('break-mode');
+            wrapper.classList.add('break-mode-active');
         } else {
-            timerDisplay.className = '';
-            statusLabel.textContent = isWorking ? "Ready to Focus" : "Taking a Break";
-            statusLabel.style.color = "var(--sub-text)";
+            timerDisplay.classList.remove('break-mode');
+            wrapper.classList.remove('break-mode-active');
         }
-        
-        sessionLabel.textContent = `SESSION ${sessionCount} / 4`;
-        document.title = `${m}:${s} - ${isWorking ? 'Focus' : 'Break'}`;
     }
 
     function startTimer() {
         if (timerId !== null) return;
-        startBtn.style.display = "none";
         timerId = setInterval(() => {
             timeLeft--;
             updateDisplay();
-            if (timeLeft <= 0) {
+            if (timeLeft === 0) {
                 clearInterval(timerId);
                 timerId = null;
                 handleSessionEnd();
             }
         }, 1000);
-        updateDisplay();
     }
 
     function pauseTimer() {
         clearInterval(timerId);
         timerId = null;
-        startBtn.style.display = "block";
-        startBtn.textContent = "RESUME";
-        updateDisplay();
     }
 
     function resetTimer() {
@@ -228,7 +169,7 @@
         isWorking = true;
         sessionCount = 1;
         timeLeft = 25 * 60;
-        startBtn.textContent = "START";
+        sessionDisplay.textContent = `ROUND 1 / 4`;
         updateDisplay();
     }
 
@@ -245,6 +186,7 @@
             isWorking = true;
             timeLeft = 25 * 60;
         }
+        sessionDisplay.textContent = `ROUND ${sessionCount} / 4`;
         updateDisplay();
         startTimer();
     }
@@ -253,7 +195,6 @@
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', targetTheme);
-        themeBtn.textContent = targetTheme === 'dark' ? 'LIGHT MODE' : 'DARK MODE';
     }
 
     updateDisplay();
