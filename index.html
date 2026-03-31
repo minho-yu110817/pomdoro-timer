@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nature Focus Timer</title>
+    <title>Spotify Focus Timer</title>
     <style>
         @font-face {
             font-family: 'KerisKeduLine';
@@ -13,175 +13,194 @@
         }
 
         :root {
-            --bg-color: #ffffff;
-            --text-main: #1d1d1f;
-            --quote-color: #86868b;
-            --accent-color: #ff3b30;
-            --break-color: #1db954;
-            --player-bg: #f5f5f7;
-            --active-indicator: #1d1d1f;
-        }
-
-        [data-theme='dark'] {
-            --bg-color: #121212;
-            --text-main: #ffffff;
-            --quote-color: #a1a1a6;
-            --player-bg: #282828;
-            --active-indicator: #ffffff;
+            --spotify-black: #121212;
+            --spotify-grey: #282828;
+            --spotify-green: #1DB954;
+            --spotify-light-grey: #b3b3b3;
+            --white: #ffffff;
         }
 
         body {
-            margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100vh; background-color: var(--bg-color); color: var(--text-main);
-            transition: all 0.5s ease; font-family: -apple-system, sans-serif; overflow: hidden;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, var(--spotify-black) 100%);
+            color: var(--white);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
         }
 
-        .music-player {
-            position: fixed; top: 25px; display: flex; align-items: center;
-            background: var(--player-bg); padding: 10px 25px; border-radius: 50px;
-            width: 90%; max-width: 520px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 10;
+        /* 🎵 Spotify Style Music Bar (Top) */
+        .spotify-bar {
+            position: fixed;
+            top: 20px;
+            width: 90%;
+            max-width: 450px;
+            background-color: var(--spotify-grey);
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            z-index: 100;
         }
 
-        .track-info { flex-grow: 1; display: flex; flex-direction: column; }
-        .track-status { font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1rem; color: var(--break-color); text-transform: uppercase; margin-bottom: 2px; }
-        .track-name { font-size: 0.75rem; font-weight: 700; opacity: 0.8; }
+        .track-info { display: flex; align-items: center; gap: 12px; }
+        .album-art { width: 40px; height: 40px; border-radius: 4px; background: #555; overflow: hidden; }
+        .album-art img { width: 100%; height: 100%; object-fit: cover; }
+        .text-meta { display: flex; flex-direction: column; }
+        .track-name { font-size: 0.85rem; font-weight: 700; color: var(--white); }
+        .artist-name { font-size: 0.75rem; color: var(--spotify-light-grey); }
 
-        .noise-selector { display: flex; gap: 15px; position: relative; }
-        .noise-btn {
-            background: none; border: none; cursor: pointer; font-size: 0.7rem; font-weight: 700;
-            color: var(--quote-color); padding: 8px 4px; transition: color 0.3s ease;
+        .playback-controls { display: flex; align-items: center; gap: 15px; }
+        .play-btn { 
+            background: var(--white); border: none; width: 32px; height: 32px; 
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
         }
-        .noise-btn.active { color: var(--text-main); }
+        .play-btn:hover { transform: scale(1.05); }
+
+        /* ⏱️ Timer Section */
+        #timer {
+            font-family: 'KerisKeduLine', sans-serif;
+            font-size: clamp(6rem, 25vw, 12rem);
+            color: var(--spotify-green);
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(29, 185, 84, 0.3);
+        }
         
-        .indicator {
-            position: absolute; bottom: 0px; height: 2px; background: var(--active-indicator);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2px;
-        }
+        .session-info { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.2rem; color: var(--spotify-light-grey); margin-bottom: 40px; }
 
-        .theme-btn {
-            position: fixed; top: 32px; right: 30px; background: none; border: 1.2px solid var(--quote-color);
-            color: var(--text-main); padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; font-weight: 600;
-            z-index: 11; opacity: 0.7;
-        }
-
-        #timer { font-family: 'KerisKeduLine', sans-serif; font-size: clamp(5rem, 24vw, 11rem); margin: 20px 0; color: var(--accent-color); }
-        #timer.break-mode { color: var(--break-color); }
-        
-        .buttons { display: flex; gap: 15px; }
+        .timer-controls { display: flex; gap: 15px; }
         .btn {
-            outline: none; cursor: pointer; border: none; padding: 16px 38px; border-radius: 30px;
-            font-size: 0.85rem; font-weight: 800; transition: all 0.3s ease;
-            background: var(--text-main); color: var(--bg-color);
+            background: none; border: 2px solid var(--spotify-light-grey); color: var(--white);
+            padding: 12px 30px; border-radius: 50px; font-weight: 700; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.2s;
         }
-        .btn-start { background-color: var(--accent-color); color: white; }
-        .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.5; }
+        .btn:hover { border-color: var(--white); transform: scale(1.02); }
+        .btn-primary { background: var(--spotify-green); border: none; color: var(--spotify-black); }
+
+        /* Hidden YouTube (소리만 사용) */
+        #yt-player { position: absolute; width: 1px; height: 1px; left: -9999px; }
     </style>
 </head>
 <body>
 
-<audio id="ambientAudio" loop preload="auto"></audio>
+<div id="yt-player"></div>
 
-<div class="music-player">
+<div class="spotify-bar">
     <div class="track-info">
-        <div class="track-status" id="play-status">READY</div>
-        <div class="track-name" id="mode-display">Rainy Mood</div>
+        <div class="album-art">
+            <img src="https://img.youtube.com/vi/Yuw8TnTei58/0.jpg" alt="Art">
+        </div>
+        <div class="text-meta">
+            <div class="track-name">숲 공기🌿가득 마시며 일하기</div>
+            <div class="artist-name" id="music-status">OFFLINE</div>
+        </div>
     </div>
-    <div class="noise-selector">
-        <button class="noise-btn active" id="btn-rain" onclick="changeAmbient('rain', this)">RAIN</button>
-        <button class="noise-btn" id="btn-fire" onclick="changeAmbient('fire', this)">FIRE</button>
-        <button class="noise-btn" id="btn-water" onclick="changeAmbient('waterfall', this)">WATERFALL</button>
-        <button class="noise-btn" id="btn-none" onclick="changeAmbient('none', this)">NONE</button>
-        <div class="indicator" id="indicator"></div>
+    <div class="playback-controls">
+        <button class="play-btn" id="master-play" onclick="toggleMusic()">
+            <span id="play-icon">▶</span>
+        </button>
     </div>
 </div>
 
-<button class="theme-btn" onclick="toggleTheme()">MODE</button>
+<div id="timer">25:00</div>
+<div class="session-info">FOCUS SESSION</div>
 
-<div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
-
-<div class="buttons">
-    <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
-    <button class="btn btn-start" onclick="startTimer()">START</button>
-    <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
+<div class="timer-controls">
+    <button class="btn" onclick="resetTimer()">RESET</button>
+    <button class="btn btn-primary" onclick="startTimer()">START FOCUS</button>
+    <button class="btn" onclick="pauseTimer()">PAUSE</button>
 </div>
 
 <script>
-    const localFiles = {
-        rain: 'rain.mp3',
-        fire: 'fire.mp3',
-        waterfall: 'waterfall.mp3',
-        none: ''
-    };
+    // 1. YouTube API 로드
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    const modeNames = { rain: 'Rainy Mood', fire: 'Crackling Fire', waterfall: 'Deep Waterfall', none: 'Muted' };
-
-    let timeLeft = 25 * 60, timerId = null, isWorking = true, currentMode = 'rain';
-    const audio = document.getElementById('ambientAudio');
-    const playStatus = document.getElementById('play-status');
-    const indicator = document.getElementById('indicator');
-
-    function changeAmbient(type, btn) {
-        currentMode = type;
-        document.querySelectorAll('.noise-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        indicator.style.width = `${btn.offsetWidth}px`;
-        indicator.style.left = `${btn.offsetLeft}px`;
-        document.getElementById('mode-display').textContent = modeNames[type];
-
-        if (type === 'none') {
-            audio.pause();
-            if (timerId) playStatus.textContent = "MUTED";
-        } else {
-            audio.src = localFiles[type];
-            if (timerId) {
-                audio.play().catch(e => console.log("Play error"));
-                playStatus.textContent = "PLAYING";
+    var player;
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('yt-player', {
+            videoId: 'Yuw8TnTei58',
+            events: {
+                'onStateChange': onPlayerStateChange
             }
+        });
+    }
+
+    let isPlaying = false;
+    function toggleMusic() {
+        if (!player) return;
+        if (isPlaying) {
+            player.pauseVideo();
+        } else {
+            player.playVideo();
         }
     }
+
+    function onPlayerStateChange(event) {
+        const statusText = document.getElementById('music-status');
+        const playIcon = document.getElementById('play-icon');
+        if (event.data == YT.PlayerState.PLAYING) {
+            isPlaying = true;
+            statusText.textContent = "PLAYING FROM YOUTUBE";
+            statusText.style.color = "#1DB954";
+            playIcon.textContent = "⏸";
+        } else {
+            isPlaying = false;
+            statusText.textContent = "PAUSED";
+            statusText.style.color = "#b3b3b3";
+            playIcon.textContent = "▶";
+        }
+    }
+
+    // 2. 타이머 로직
+    let timeLeft = 25 * 60;
+    let timerId = null;
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
-        document.getElementById('timer').innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
-        
-        audio.volume = isWorking ? 0.5 : 0.2;
-        if (!isWorking) document.getElementById('timer').classList.add('break-mode');
-        else document.getElementById('timer').classList.remove('break-mode');
+        document.getElementById('timer').textContent = `${m}:${s}`;
     }
 
     function startTimer() {
         if (timerId !== null) return;
-        if (currentMode !== 'none') {
-            if (!audio.src) audio.src = localFiles[currentMode];
-            audio.play().catch(err => alert("파일을 찾을 수 없습니다: " + localFiles[currentMode]));
-            playStatus.textContent = "PLAYING";
-        }
+        // 타이머 시작 시 음악도 같이 재생
+        if (player && !isPlaying) player.playVideo();
+        
         timerId = setInterval(() => {
-            timeLeft--; updateDisplay();
-            if (timeLeft === 0) { clearInterval(timerId); timerId = null; handleSessionEnd(); }
+            timeLeft--;
+            updateDisplay();
+            if (timeLeft === 0) {
+                clearInterval(timerId);
+                timerId = null;
+                alert("Session Finished!");
+            }
         }, 1000);
     }
 
     function pauseTimer() {
-        clearInterval(timerId); timerId = null;
-        audio.pause();
-        playStatus.textContent = "PAUSED";
+        clearInterval(timerId);
+        timerId = null;
+        if (player) player.pauseVideo();
     }
 
-    function resetTimer() { pauseTimer(); isWorking = true; timeLeft = 25 * 60; updateDisplay(); }
-    function handleSessionEnd() { isWorking = !isWorking; timeLeft = isWorking ? 25 * 60 : 5 * 60; updateDisplay(); startTimer(); }
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = 25 * 60;
+        updateDisplay();
     }
 
-    window.onload = () => {
-        const firstBtn = document.getElementById('btn-rain');
-        indicator.style.width = `${firstBtn.offsetWidth}px`;
-        indicator.style.left = `${firstBtn.offsetLeft}px`;
-    };
     updateDisplay();
 </script>
+
 </body>
 </html>
