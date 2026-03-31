@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Focus</title>
+    <title>Professional Pomodoro</title>
     <style>
         @font-face {
             font-family: 'KerisKeduLine';
@@ -16,13 +16,13 @@
             --bg-color: #fcfcfc;
             --text-main: #1d1d1f;
             --accent-color: #ff3b30;
-            --break-color: #1db954;
+            --break-color: #34c759;
             --sub-text: #86868b;
             --btn-bg: #f5f5f7;
         }
 
         [data-theme='dark'] {
-            --bg-color: #121212;
+            --bg-color: #000000;
             --text-main: #ffffff;
             --sub-text: #a1a1a6;
             --btn-bg: #1c1c1e;
@@ -39,74 +39,84 @@
             color: var(--text-main);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-            letter-spacing: -0.02em;
+            overflow: hidden;
         }
 
-        /* 상단 테마 버튼 */
+        /* 테마 변경 버튼 (설정 패널 대체) */
         .theme-btn {
             position: fixed; top: 40px; right: 40px;
             background: none; border: 1px solid var(--sub-text);
             color: var(--sub-text); padding: 8px 18px;
             border-radius: 30px; cursor: pointer; font-size: 0.75rem; 
-            font-weight: 500; transition: 0.3s;
+            font-weight: 600; transition: 0.3s;
+            letter-spacing: 0.05rem;
         }
         .theme-btn:hover { border-color: var(--text-main); color: var(--text-main); }
 
-        /* 명언 섹션: 간격 확장 및 한글 추가 */
+        /* 명언 섹션: 간격 최적화 */
         .quote-wrapper {
             text-align: center;
-            margin-bottom: 80px; /* 타이머와의 간격 확보 */
-            padding: 0 20px;
-            max-width: 600px;
+            margin-bottom: 80px;
+            padding: 0 30px;
+            max-width: 700px;
+            animation: fadeIn 1.2s ease-out;
         }
         .quote-ko {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
             margin-bottom: 12px;
-            line-height: 1.4;
+            line-height: 1.5;
+            word-break: keep-all;
         }
         .quote-en {
             font-size: 0.9rem;
             color: var(--sub-text);
             font-style: italic;
-            letter-spacing: 0;
+            opacity: 0.8;
         }
 
-        /* 상태 라벨 */
-        .status-badge {
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 0.4em;
-            text-transform: uppercase;
-            padding: 6px 12px;
+        /* 상태 및 세션 정보 */
+        .info-container {
+            text-align: center;
             margin-bottom: 20px;
+        }
+        #status {
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.5rem;
+            text-transform: uppercase;
             color: var(--sub-text);
-            transition: color 0.3s;
+            margin-bottom: 8px;
+        }
+        #session-count {
+            font-size: 0.75rem;
+            letter-spacing: 0.2rem;
+            opacity: 0.5;
         }
 
-        /* 타이머 숫자: 압도적인 크기 */
+        /* 타이머 숫자 */
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(8rem, 35vw, 18rem);
-            line-height: 0.8;
+            font-size: clamp(7rem, 32vw, 16rem);
+            line-height: 0.85;
             margin: 0;
             color: var(--text-main);
             transition: color 0.5s ease;
         }
-        #timer.focus-active { color: var(--accent-color); }
-        #timer.break-active { color: var(--break-color); }
+        #timer.focus-mode { color: var(--accent-color); }
+        #timer.break-mode { color: var(--break-color); }
 
         /* 컨트롤 버튼 그룹 */
         .controls {
-            margin-top: 100px; /* 타이머 하단 간격 대폭 확대 */
+            margin-top: 100px;
             display: flex;
-            gap: 24px;
+            gap: 20px;
         }
 
         .btn {
             outline: none; cursor: pointer; border: none;
-            padding: 20px 50px; border-radius: 50px;
-            font-size: 0.95rem; font-weight: 700;
+            padding: 20px 45px; border-radius: 50px;
+            font-size: 0.9rem; font-weight: 700;
             transition: all 0.3s ease;
             background: var(--btn-bg);
             color: var(--text-main);
@@ -116,22 +126,33 @@
         .btn-start { 
             background: var(--accent-color); 
             color: white; 
-            box-shadow: 0 15px 30px rgba(255, 59, 48, 0.15);
+            box-shadow: 0 10px 25px rgba(255, 59, 48, 0.15);
         }
-        .btn-start:hover { background: #e0352b; color: white; }
+        .btn-start.break-active {
+            background: var(--break-color);
+            box-shadow: 0 10px 25px rgba(52, 199, 89, 0.15);
+        }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
-<button class="theme-btn" onclick="toggleTheme()">THEME</button>
+<button class="theme-btn" id="themeBtn" onclick="toggleTheme()">DARK MODE</button>
 
 <div class="quote-wrapper">
     <div class="quote-ko">"가장 위대한 영광은 한 번도 실패하지 않음이 아니라, 실패할 때마다 다시 일어서는 데 있다."</div>
     <div class="quote-en">The greatest glory lies not in never falling, but in rising every time we fall.</div>
 </div>
 
-<div class="status-badge" id="status">Ready</div>
+<div class="info-container">
+    <div id="status">Ready to Focus</div>
+    <div id="session-count">SESSION 1 / 4</div>
+</div>
+
 <div id="timer">25:00</div>
 
 <div class="controls">
@@ -144,10 +165,13 @@
     let timeLeft = 25 * 60;
     let timerId = null;
     let isWorking = true;
+    let sessionCount = 1;
 
     const timerDisplay = document.getElementById('timer');
     const statusLabel = document.getElementById('status');
+    const sessionLabel = document.getElementById('session-count');
     const startBtn = document.getElementById('startBtn');
+    const themeBtn = document.getElementById('themeBtn');
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
@@ -156,19 +180,24 @@
         
         if (timerId) {
             if (isWorking) {
-                timerDisplay.className = 'focus-active';
+                timerDisplay.className = 'focus-mode';
                 statusLabel.textContent = "Focusing";
                 statusLabel.style.color = "var(--accent-color)";
+                startBtn.className = "btn btn-start";
             } else {
-                timerDisplay.className = 'break-active';
+                timerDisplay.className = 'break-mode';
                 statusLabel.textContent = "Resting";
                 statusLabel.style.color = "var(--break-color)";
+                startBtn.className = "btn btn-start break-active";
             }
         } else {
             timerDisplay.className = '';
             statusLabel.textContent = isWorking ? "Ready to Focus" : "Taking a Break";
             statusLabel.style.color = "var(--sub-text)";
         }
+        
+        sessionLabel.textContent = `SESSION ${sessionCount} / 4`;
+        document.title = `${m}:${s} - ${isWorking ? 'Focus' : 'Break'}`;
     }
 
     function startTimer() {
@@ -180,7 +209,7 @@
             if (timeLeft <= 0) {
                 clearInterval(timerId);
                 timerId = null;
-                handleModeSwitch();
+                handleSessionEnd();
             }
         }, 1000);
         updateDisplay();
@@ -197,21 +226,34 @@
     function resetTimer() {
         pauseTimer();
         isWorking = true;
+        sessionCount = 1;
         timeLeft = 25 * 60;
         startBtn.textContent = "START";
         updateDisplay();
     }
 
-    function handleModeSwitch() {
-        isWorking = !isWorking;
-        timeLeft = isWorking ? 25 * 60 : 5 * 60;
+    function handleSessionEnd() {
+        if (isWorking) {
+            if (sessionCount >= 4) {
+                resetTimer();
+                return;
+            }
+            isWorking = false;
+            timeLeft = 5 * 60;
+        } else {
+            sessionCount++;
+            isWorking = true;
+            timeLeft = 25 * 60;
+        }
         updateDisplay();
         startTimer();
     }
 
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', targetTheme);
+        themeBtn.textContent = targetTheme === 'dark' ? 'LIGHT MODE' : 'DARK MODE';
     }
 
     updateDisplay();
