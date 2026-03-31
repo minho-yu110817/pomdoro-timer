@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Focus Timer</title>
+    <title>Pure Focus Timer</title>
     <style>
         @font-face {
             font-family: 'KerisKeduLine';
@@ -13,11 +13,17 @@
         }
 
         :root {
-            --spotify-black: #121212;
-            --spotify-grey: #282828;
-            --spotify-green: #1DB954;
-            --spotify-light-grey: #b3b3b3;
-            --white: #ffffff;
+            --bg-color: #ffffff;
+            --text-main: #1d1d1f;
+            --quote-color: #86868b;
+            --accent-color: #ff3b30; /* 집중 모드 빨간색 */
+            --break-color: #1db954;  /* 휴식 모드 초록색 */
+        }
+
+        [data-theme='dark'] {
+            --bg-color: #121212;
+            --text-main: #ffffff;
+            --quote-color: #a1a1a6;
         }
 
         body {
@@ -27,162 +33,124 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(180deg, #2c3e50 0%, var(--spotify-black) 100%);
-            color: var(--white);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: all 0.5s ease;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
         }
 
-        /* 🎵 Spotify Style Music Bar (Top) */
-        .spotify-bar {
-            position: fixed;
-            top: 20px;
-            width: 90%;
-            max-width: 450px;
-            background-color: var(--spotify-grey);
-            padding: 12px 20px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            z-index: 100;
+        /* 테마 변경 버튼 */
+        .theme-btn {
+            position: fixed; top: 30px; right: 30px;
+            background: none; border: 1.2px solid var(--quote-color);
+            color: var(--text-main); padding: 6px 15px;
+            border-radius: 20px; cursor: pointer; font-size: 0.75rem; font-weight: 600;
+            z-index: 11; opacity: 0.7; transition: 0.3s;
+        }
+        .theme-btn:hover { opacity: 1; border-color: var(--text-main); }
+
+        /* 명언 섹션 */
+        .quote-container { text-align: center; padding: 0 40px; margin-bottom: 20px; }
+        .quote-text { font-size: 1.1rem; font-style: italic; margin-bottom: 10px; line-height: 1.6; }
+        .quote-author { font-size: 0.75rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
+
+        /* 타이머 섹션 */
+        #main-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        #timer { 
+            font-family: 'KerisKeduLine', sans-serif; 
+            font-size: clamp(6rem, 28vw, 13rem); 
+            margin: 0; 
+            color: var(--accent-color); 
+            line-height: 1;
+        }
+        #timer.break-mode { color: var(--break-color); }
+
+        .session-info { 
+            font-size: 0.85rem; 
+            margin: 20px 0 50px 0; 
+            letter-spacing: 0.4rem; 
+            opacity: 0.4; 
+            font-weight: 600;
         }
 
-        .track-info { display: flex; align-items: center; gap: 12px; }
-        .album-art { width: 40px; height: 40px; border-radius: 4px; background: #555; overflow: hidden; }
-        .album-art img { width: 100%; height: 100%; object-fit: cover; }
-        .text-meta { display: flex; flex-direction: column; }
-        .track-name { font-size: 0.85rem; font-weight: 700; color: var(--white); }
-        .artist-name { font-size: 0.75rem; color: var(--spotify-light-grey); }
-
-        .playback-controls { display: flex; align-items: center; gap: 15px; }
-        .play-btn { 
-            background: var(--white); border: none; width: 32px; height: 32px; 
-            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s;
-        }
-        .play-btn:hover { transform: scale(1.05); }
-
-        /* ⏱️ Timer Section */
-        #timer {
-            font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(6rem, 25vw, 12rem);
-            color: var(--spotify-green);
-            margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(29, 185, 84, 0.3);
-        }
-        
-        .session-info { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.2rem; color: var(--spotify-light-grey); margin-bottom: 40px; }
-
-        .timer-controls { display: flex; gap: 15px; }
+        /* 컨트롤 버튼 */
+        .buttons { display: flex; gap: 20px; }
         .btn {
-            background: none; border: 2px solid var(--spotify-light-grey); color: var(--white);
-            padding: 12px 30px; border-radius: 50px; font-weight: 700; font-size: 0.8rem;
-            cursor: pointer; transition: all 0.2s;
+            outline: none; cursor: pointer; border: none;
+            padding: 18px 45px; border-radius: 35px;
+            font-size: 0.9rem; font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--text-main); color: var(--bg-color);
         }
-        .btn:hover { border-color: var(--white); transform: scale(1.02); }
-        .btn-primary { background: var(--spotify-green); border: none; color: var(--spotify-black); }
+        .btn:active { transform: scale(0.95); }
+        .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255, 59, 48, 0.2); }
+        .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
+        .btn-sub:hover { opacity: 1; }
 
-        /* Hidden YouTube (소리만 사용) */
-        #yt-player { position: absolute; width: 1px; height: 1px; left: -9999px; }
     </style>
 </head>
 <body>
 
-<div id="yt-player"></div>
+<button class="theme-btn" onclick="toggleTheme()">DARK / LIGHT</button>
 
-<div class="spotify-bar">
-    <div class="track-info">
-        <div class="album-art">
-            <img src="https://img.youtube.com/vi/Yuw8TnTei58/0.jpg" alt="Art">
-        </div>
-        <div class="text-meta">
-            <div class="track-name">숲 공기🌿가득 마시며 일하기</div>
-            <div class="artist-name" id="music-status">OFFLINE</div>
-        </div>
+<div class="quote-container">
+    <div class="quote-text">
+        "The great pleasure in life is doing what people say you cannot do."
     </div>
-    <div class="playback-controls">
-        <button class="play-btn" id="master-play" onclick="toggleMusic()">
-            <span id="play-icon">▶</span>
-        </button>
-    </div>
+    <div class="quote-author">— Walter Bagehot</div>
 </div>
 
-<div id="timer">25:00</div>
-<div class="session-info">FOCUS SESSION</div>
-
-<div class="timer-controls">
-    <button class="btn" onclick="resetTimer()">RESET</button>
-    <button class="btn btn-primary" onclick="startTimer()">START FOCUS</button>
-    <button class="btn" onclick="pauseTimer()">PAUSE</button>
+<div id="main-wrapper">
+    <div id="timer">25:00</div>
+    <div class="session-info" id="session-count">FOCUS SESSION</div>
+    
+    <div class="buttons">
+        <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
+        <button class="btn btn-start" id="startBtn" onclick="startTimer()">START</button>
+        <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
+    </div>
 </div>
 
 <script>
-    // 1. YouTube API 로드
-    var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    var player;
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('yt-player', {
-            videoId: 'Yuw8TnTei58',
-            events: {
-                'onStateChange': onPlayerStateChange
-            }
-        });
-    }
-
-    let isPlaying = false;
-    function toggleMusic() {
-        if (!player) return;
-        if (isPlaying) {
-            player.pauseVideo();
-        } else {
-            player.playVideo();
-        }
-    }
-
-    function onPlayerStateChange(event) {
-        const statusText = document.getElementById('music-status');
-        const playIcon = document.getElementById('play-icon');
-        if (event.data == YT.PlayerState.PLAYING) {
-            isPlaying = true;
-            statusText.textContent = "PLAYING FROM YOUTUBE";
-            statusText.style.color = "#1DB954";
-            playIcon.textContent = "⏸";
-        } else {
-            isPlaying = false;
-            statusText.textContent = "PAUSED";
-            statusText.style.color = "#b3b3b3";
-            playIcon.textContent = "▶";
-        }
-    }
-
-    // 2. 타이머 로직
     let timeLeft = 25 * 60;
     let timerId = null;
+    let isWorking = true;
+
+    const timerDisplay = document.getElementById('timer');
+    const sessionDisplay = document.getElementById('session-count');
+    const startBtn = document.getElementById('startBtn');
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
-        document.getElementById('timer').textContent = `${m}:${s}`;
+        timerDisplay.textContent = `${m}:${s}`;
+        
+        if (!isWorking) {
+            timerDisplay.classList.add('break-mode');
+            sessionDisplay.textContent = "BREAK TIME";
+            sessionDisplay.style.color = "var(--break-color)";
+        } else {
+            timerDisplay.classList.remove('break-mode');
+            sessionDisplay.textContent = "FOCUS SESSION";
+            sessionDisplay.style.color = "var(--text-main)";
+        }
+        
+        // 브라우저 탭 제목 업데이트
+        document.title = `(${m}:${s}) Focus`;
     }
 
     function startTimer() {
         if (timerId !== null) return;
-        // 타이머 시작 시 음악도 같이 재생
-        if (player && !isPlaying) player.playVideo();
         
+        startBtn.style.opacity = "0.5";
         timerId = setInterval(() => {
             timeLeft--;
             updateDisplay();
             if (timeLeft === 0) {
                 clearInterval(timerId);
                 timerId = null;
-                alert("Session Finished!");
+                handleSessionEnd();
             }
         }, 1000);
     }
@@ -190,16 +158,40 @@
     function pauseTimer() {
         clearInterval(timerId);
         timerId = null;
-        if (player) player.pauseVideo();
+        startBtn.style.opacity = "1";
     }
 
     function resetTimer() {
         pauseTimer();
+        isWorking = true;
         timeLeft = 25 * 60;
         updateDisplay();
     }
 
+    function handleSessionEnd() {
+        // 알림음 대신 간단한 진동/알림 (지원되는 경우)
+        if (Notification.permission === "granted") {
+            new Notification(isWorking ? "휴식 시간입니다!" : "다시 집중할 시간입니다!");
+        }
+
+        isWorking = !isWorking;
+        timeLeft = isWorking ? 25 * 60 : 5 * 60;
+        updateDisplay();
+        startTimer(); // 다음 세션 자동 시작
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    // 초기 표시 업데이트
     updateDisplay();
+
+    // 알림 권한 요청
+    if (window.Notification && Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
 </script>
 
 </body>
