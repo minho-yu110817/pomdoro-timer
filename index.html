@@ -13,7 +13,6 @@
         }
 
         :root {
-            /* 라이트 모드 제거 및 다크 모드 전용 설정 */
             --bg-color: #121212;
             --text-main: #ffffff;
             --quote-color: #a1a1a6;
@@ -22,8 +21,10 @@
             --glow-color: rgba(255, 59, 48, 0.15);
         }
 
+        /* 최적화: 여백 제거 및 스크롤 완전 봉쇄 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            margin: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -33,33 +34,32 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            /* 스크롤 절대 방지 */
-            overflow: hidden;
-            position: fixed;
-            left: 0;
-            top: 0;
+            overflow: hidden; /* 스크롤 방지 */
+            position: fixed; /* 바운스 스크롤 방지 */
         }
 
-        /* ✨ 반원 형태의 후광(Glow) - 크기 유지 */
+        /* ✨ 최적화된 반원 후광: 화면 너비(vw)에 따라 크기가 변함 */
         .bg-glow {
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 300px;
-            height: 150px;
-            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(18, 18, 18, 0) 80%);
-            border-bottom-left-radius: 700px;
-            border-bottom-right-radius: 700px;
+            width: 120vw; /* 화면 너비보다 살짝 크게 설정하여 부드럽게 */
+            height: 60vw;  /* 너비의 절반으로 반원 유지 */
+            max-width: 1400px; /* 너무 커지지 않게 제한 */
+            max-height: 700px;
+            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(18, 18, 18, 0) 75%);
+            border-bottom-left-radius: 50%;
+            border-bottom-right-radius: 50%;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out;
+            transition: opacity 1.5s ease-in-out, background 0.5s ease;
             z-index: 0;
         }
 
         @keyframes subtlePulse {
-            0% { opacity: 0.3; transform: translateX(-50%) scale(0.95); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+            0% { opacity: 0.3; transform: translateX(-50%) scale(0.98); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.02); }
         }
 
         body.timer-running .bg-glow {
@@ -67,59 +67,52 @@
             animation: subtlePulse 4s infinite alternate ease-in-out;
         }
 
-        /* 명언 섹션 */
         .quote-container {
-            margin-bottom: 60px;
+            margin-bottom: 5vh;
             text-align: center;
-            padding: 0 30px;
-            position: relative;
+            padding: 0 20px;
             z-index: 2;
             user-select: none;
         }
-        .quote-text { 
-            font-size: 1rem; font-style: italic; color: var(--text-main); 
-            margin-bottom: 12px; line-height: 1.5;
-        }
+        .quote-text { font-size: 1rem; font-style: italic; line-height: 1.5; margin-bottom: 8px; }
         .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
 
-        /* 메인 타이머 섹션 */
         #main-wrapper {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 100%; position: relative; z-index: 2;
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; z-index: 2;
         }
 
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(6rem, 28vw, 13rem);
-            margin: 20px 0; color: var(--accent-color);
+            font-size: clamp(5rem, 25vw, 12rem);
+            margin: 10px 0; color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
         }
         #timer.break-mode { color: var(--break-color); }
 
-        .progress-dots { display: flex; gap: 12px; margin-bottom: 80px; }
+        .progress-dots { display: flex; gap: 12px; margin-bottom: 5vh; }
         .dot {
             width: 10px; height: 10px; border-radius: 50%;
-            background-color: var(--text-main); opacity: 0.1;
+            background-color: #fff; opacity: 0.1;
             transition: all 0.5s ease;
         }
-        .dot.active { opacity: 0.8; background-color: var(--accent-color); transform: scale(1.2); }
+        .dot.active { opacity: 0.8; transform: scale(1.2); }
 
-        /* 버튼 섹션 */
-        .buttons { display: flex; gap: 15px; justify-content: center; width: 100%; }
+        .buttons { display: flex; gap: 15px; }
         .btn {
             outline: none; cursor: pointer; border: none;
-            padding: 18px 40px; border-radius: 35px;
-            font-size: 0.85rem; font-weight: 800;
-            transition: all 0.3s ease;
-            background: var(--text-main); color: var(--bg-color);
+            padding: 15px 35px; border-radius: 30px;
+            font-size: 0.8rem; font-weight: 800;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            background: #fff; color: #000;
         }
-        .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255,59,48,0.1); }
-        .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
+        .btn:active { transform: scale(0.95); }
+        .btn-start { background-color: var(--accent-color); color: white; }
+        .btn-sub { background: transparent; border: 1px solid #fff; color: #fff; opacity: 0.5; }
 
-        /* 종료 모달 */
         #finish-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; inset: 0;
             background: var(--bg-color);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             z-index: 100; opacity: 0; pointer-events: none;
@@ -133,24 +126,24 @@
 <div class="bg-glow" id="glow"></div>
 
 <div id="finish-modal">
-    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 15px;">Session Ended.</div>
-    <div style="font-size: 0.95rem; color: var(--quote-color); margin-bottom: 40px;">모든 세션이 종료되었습니다.</div>
+    <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Session Ended.</div>
+    <div style="font-size: 0.9rem; color: var(--quote-color); margin-bottom: 30px;">모든 세션이 종료되었습니다.</div>
     <button class="btn btn-sub" onclick="closeModal()">Close and Reset</button>
 </div>
 
 <div class="quote-container">
     <div class="quote-text">
         "The great pleasure in life is doing what people say you cannot do."<br>
-        <span style="font-size: 0.85rem; font-style: normal; opacity: 0.7; display: inline-block; margin-top: 8px;">
-            인생의 큰 즐거움은 사람들이 '너는 할 수 없어'라고 말하는 일을 해내는 것이다.
+        <span style="font-size: 0.8rem; font-style: normal; opacity: 0.7; display: block; margin-top: 5px;">
+            인생의 큰 즐거움은 사람들이 할 수 없다는 일을 해내는 것이다.
         </span>
     </div>
     <div class="quote-author">— Walter Bagehot</div>
 </div>
 
 <div id="main-wrapper">
-    <div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
-    <div class="progress-dots">
+    <div id="timer">25 : 00</div>
+    <div class="progress-dots" id="dots">
         <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
     <div class="buttons">
@@ -173,38 +166,35 @@
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
-        timerDisplay.innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
+        timerDisplay.textContent = `${m} : ${s}`;
         
-        if (!isWorking) {
-            timerDisplay.classList.add('break-mode');
-            document.documentElement.style.setProperty('--glow-color', 'rgba(29, 185, 84, 0.15)');
-        } else {
-            timerDisplay.classList.remove('break-mode');
-            document.documentElement.style.setProperty('--glow-color', 'rgba(255, 59, 48, 0.15)');
-        }
+        const color = isWorking ? 'rgba(255, 59, 48, 0.15)' : 'rgba(29, 185, 84, 0.15)';
+        document.documentElement.style.setProperty('--glow-color', color);
+
+        if (!isWorking) timerDisplay.classList.add('break-mode');
+        else timerDisplay.classList.remove('break-mode');
 
         dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index < sessionCount);
             if (index < sessionCount) {
-                dot.classList.add('active');
                 dot.style.backgroundColor = isWorking ? 'var(--accent-color)' : 'var(--break-color)';
             } else {
-                dot.classList.remove('active');
-                dot.style.backgroundColor = 'var(--text-main)';
+                dot.style.backgroundColor = '#fff';
             }
         });
     }
 
     function startTimer() {
-        if (timerId !== null) return;
+        if (timerId) return;
         document.body.classList.add('timer-running');
         timerId = setInterval(() => {
-            timeLeft--;
-            updateDisplay();
-            if (timeLeft === 0) {
+            if (--timeLeft < 0) {
                 clearInterval(timerId);
                 timerId = null;
                 document.body.classList.remove('timer-running');
                 handleSessionEnd();
+            } else {
+                updateDisplay();
             }
         }, 1000);
     }
@@ -234,10 +224,7 @@
 
     function closeModal() { modal.classList.remove('show'); resetTimer(); }
 
-    // toggleTheme 함수 제거됨
-
     updateDisplay();
 </script>
-
 </body>
 </html>
