@@ -25,7 +25,7 @@
         body {
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* 위-중간-아래로 다시 분산 */
+            justify-content: space-between;
             align-items: center;
             height: 100vh;
             width: 100vw;
@@ -34,10 +34,9 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             position: fixed;
-            padding: 14vh 0 14vh 0; /* 상하단 적정 여백 */
+            padding: 14vh 0 14vh 0;
         }
 
-        /* 명언 섹션 */
         .quote-container {
             text-align: center;
             padding: 0 40px;
@@ -54,7 +53,6 @@
         }
         .quote-author { font-size: 0.75rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
 
-        /* 중앙 타이머 섹션 */
         #main-wrapper {
             display: flex;
             flex-direction: column;
@@ -62,12 +60,12 @@
             justify-content: center;
             width: 100%;
             z-index: 2;
-            flex-grow: 1; /* 타이머가 중앙 영역을 넓게 차지하게 함 */
+            flex-grow: 1;
         }
 
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(7.5rem, 32vw, 14.5rem); /* 타이머 크기 유지 및 미세 상향 */
+            font-size: clamp(7.5rem, 32vw, 14.5rem);
             color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
@@ -84,7 +82,6 @@
         }
         .dot.active { opacity: 0.8; transform: scale(1.1); }
 
-        /* 하단 버튼 섹션 */
         .buttons { 
             display: flex; 
             gap: 15px; 
@@ -103,6 +100,11 @@
             color: white; 
             padding: 14px 45px;
         }
+        /* ✨ 휴식 모드 시 START 버튼 색상 변경을 위한 클래스 */
+        .btn-start.break-mode {
+            background-color: var(--break-color);
+        }
+
         .btn-sub { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #fff; }
 
         #finish-modal {
@@ -127,7 +129,7 @@
     <div class="quote-text">
         "The great pleasure in life is doing what people say you cannot do."<br>
         <span style="font-size: 0.85rem; font-style: normal; opacity: 0.6; display: block; margin-top: 8px;">
-            인생의 큰 즐거움은 사람들이 할 수 없다는 일을 해내는 것이다.
+            인생의 큰 희열은 사람들이 할 수 없다는 일을 해내는 것이다.
         </span>
     </div>
     <div class="quote-author">— Walter Bagehot</div>
@@ -142,7 +144,7 @@
 
 <div class="buttons">
     <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
-    <button class="btn btn-start" onclick="startTimer()">START</button>
+    <button class="btn btn-start" id="start-btn" onclick="startTimer()">START</button>
     <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
 </div>
 
@@ -153,6 +155,7 @@
     let sessionCount = 1;
 
     const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('start-btn'); // ✨ 버튼 참조 추가
     const dots = document.querySelectorAll('.dot');
     const modal = document.getElementById('finish-modal');
 
@@ -161,8 +164,13 @@
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.textContent = `${m} : ${s}`;
         
-        if (!isWorking) timerDisplay.classList.add('break-mode');
-        else timerDisplay.classList.remove('break-mode');
+        if (!isWorking) {
+            timerDisplay.classList.add('break-mode');
+            startBtn.classList.add('break-mode'); // ✨ 버튼 초록색으로
+        } else {
+            timerDisplay.classList.remove('break-mode');
+            startBtn.classList.remove('break-mode'); // ✨ 버튼 빨간색으로
+        }
 
         dots.forEach((dot, index) => {
             dot.classList.toggle('active', index < sessionCount);
@@ -213,6 +221,18 @@
     }
 
     function closeModal() { modal.classList.remove('show'); resetTimer(); }
+
+    // ✨ 스페이스바 제어 로직 추가
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault(); // 스크롤 방지
+            if (timerId) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+    });
 
     updateDisplay();
 </script>
