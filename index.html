@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pure Pomodoro</title>
     <style>
+        /* ✨ 요청하신 Sandoll ActionStencil 폰트 적용 */
         @font-face {
-            font-family: 'ChangwonDanggamAsak';
-            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/CWDangamAsac-Bold.woff') format('woff');
-            font-weight: normal;
+            font-family: 'Sandoll ActionStencil';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/SandollActionStencil.woff') format('woff');
+            font-weight: 400;
             font-display: swap;
         }
 
@@ -20,7 +21,13 @@
             --break-color: #1db954;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Sandoll ActionStencil', sans-serif; /* 전체 폰트 통일 */
+            font-weight: 400;
+        }
         
         body {
             display: flex;
@@ -31,7 +38,6 @@
             width: 100vw;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             position: fixed;
             padding: 14vh 0 14vh 0;
@@ -46,7 +52,6 @@
         }
         .quote-text { 
             font-size: 1.1rem; 
-            font-style: italic; 
             line-height: 1.5; 
             margin-bottom: 10px; 
             opacity: 0.9;
@@ -64,7 +69,6 @@
         }
 
         #timer {
-            font-family: 'ChangwonDanggamAsak', sans-serif;
             font-size: clamp(7.5rem, 32vw, 14.5rem);
             color: var(--accent-color);
             transition: color 0.5s ease;
@@ -91,7 +95,7 @@
         .btn {
             outline: none; cursor: pointer; border: none;
             padding: 14px 30px; border-radius: 30px;
-            font-size: 0.85rem; font-weight: 700;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
             background: #fff; color: #000;
         }
@@ -100,7 +104,6 @@
             color: white; 
             padding: 14px 45px;
         }
-        /* ✨ 휴식 모드 시 START 버튼 색상 변경을 위한 클래스 */
         .btn-start.break-mode {
             background-color: var(--break-color);
         }
@@ -120,7 +123,7 @@
 <body>
 
 <div id="finish-modal">
-    <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Session Ended.</div>
+    <div style="font-size: 1.5rem; margin-bottom: 10px;">Session Ended.</div>
     <div style="font-size: 0.9rem; color: var(--quote-color); margin-bottom: 30px;">모든 세션이 종료되었습니다.</div>
     <button class="btn btn-sub" onclick="closeModal()">Close and Reset</button>
 </div>
@@ -128,7 +131,7 @@
 <div class="quote-container">
     <div class="quote-text">
         "The great pleasure in life is doing what people say you cannot do."<br>
-        <span style="font-size: 0.85rem; font-style: normal; opacity: 0.6; display: block; margin-top: 8px;">
+        <span style="font-size: 0.85rem; opacity: 0.6; display: block; margin-top: 8px;">
             인생의 큰 희열은 사람들이 할 수 없다는 일을 해내는 것이다.
         </span>
     </div>
@@ -155,7 +158,7 @@
     let sessionCount = 1;
 
     const timerDisplay = document.getElementById('timer');
-    const startBtn = document.getElementById('start-btn'); // ✨ 버튼 참조 추가
+    const startBtn = document.getElementById('start-btn');
     const dots = document.querySelectorAll('.dot');
     const modal = document.getElementById('finish-modal');
 
@@ -166,10 +169,10 @@
         
         if (!isWorking) {
             timerDisplay.classList.add('break-mode');
-            startBtn.classList.add('break-mode'); // ✨ 버튼 초록색으로
+            startBtn.classList.add('break-mode');
         } else {
             timerDisplay.classList.remove('break-mode');
-            startBtn.classList.remove('break-mode'); // ✨ 버튼 빨간색으로
+            startBtn.classList.remove('break-mode');
         }
 
         dots.forEach((dot, index) => {
@@ -222,10 +225,9 @@
 
     function closeModal() { modal.classList.remove('show'); resetTimer(); }
 
-    // ✨ 스페이스바 제어 로직 추가
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
-            e.preventDefault(); // 스크롤 방지
+            e.preventDefault();
             if (timerId) {
                 pauseTimer();
             } else {
