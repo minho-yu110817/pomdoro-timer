@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko" data-theme="dark"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pure Pomodoro</title>
@@ -12,8 +11,8 @@
             font-display: swap;
         }
 
-        /* 다크 모드 전용 설정으로 고정 */
         :root {
+            /* 라이트 모드 변수를 다크 모드 값으로 대체하여 고정 */
             --bg-color: #121212;
             --text-main: #ffffff;
             --quote-color: #a1a1a6;
@@ -45,7 +44,8 @@
             transform: translateX(-50%);
             width: 1400px;
             height: 700px; 
-            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(18, 18, 18, 0) 80%);
+            /* 배경이 항상 어두우므로 투명도 최적화 */
+            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(0,0,0,0) 80%);
             border-bottom-left-radius: 250px;
             border-bottom-right-radius: 250px;
             pointer-events: none;
@@ -62,6 +62,11 @@
         body.timer-running .bg-glow {
             opacity: 1;
             animation: subtlePulse 4s infinite alternate ease-in-out;
+        }
+
+        /* 테마 버튼 제거 (기능 삭제로 인한 불필요) */
+        .theme-btn {
+            display: none;
         }
 
         .quote-container {
@@ -104,7 +109,7 @@
             padding: 18px 40px; border-radius: 35px;
             font-size: 0.85rem; font-weight: 800;
             transition: all 0.3s ease;
-            background: var(--text-main); color: #121212;
+            background: var(--text-main); color: var(--bg-color);
         }
         .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255,59,48,0.1); }
         .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
@@ -224,6 +229,8 @@
     }
 
     function closeModal() { modal.classList.remove('show'); resetTimer(); }
+
+    // 테마 변경 기능 삭제
 
     updateDisplay();
 </script>
