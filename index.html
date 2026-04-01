@@ -18,17 +18,14 @@
             --quote-color: #86868b;
             --accent-color: #ff3b30;
             --break-color: #1db954;
-            /* 배경 펄싱용 연한 색상 */
-            --pulse-focus: #fff0f0;
-            --pulse-break: #f0fff4;
+            --glow-color: rgba(255, 59, 48, 0.03); /* 아주 연한 레드 */
         }
 
         [data-theme='dark'] {
             --bg-color: #121212;
             --text-main: #ffffff;
             --quote-color: #a1a1a6;
-            --pulse-focus: #1d1515;
-            --pulse-break: #151d16;
+            --glow-color: rgba(255, 59, 48, 0.06); /* 다크모드에선 살짝 더 보임 */
         }
 
         body {
@@ -40,29 +37,37 @@
             height: 100vh;
             background-color: var(--bg-color);
             color: var(--text-main);
-            /* 배경색 변화를 부드럽게 처리 */
-            transition: background-color 1.5s ease-in-out, color 0.5s ease;
+            transition: all 0.5s ease;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
+            position: relative;
         }
 
-        /* ✨ 3번 아이디어: 배경 펄싱 애니메이션 (강도 상향) */
-        @keyframes pulseFocus {
-            0% { background-color: var(--bg-color); }
-            100% { background-color: var(--pulse-focus); }
-        }
-        
-        @keyframes pulseBreak {
-            0% { background-color: var(--bg-color); }
-            100% { background-color: var(--pulse-break); }
+        /* ✨ 중앙 상단 은은한 빛 (Glow) */
+        .bg-glow {
+            position: absolute;
+            top: 15%; /* 중앙보다 약간 위 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--glow-color) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            z-index: 0;
         }
 
-        /* 타이머 실행 중일 때 적용되는 클래스 */
-        body.timer-running.focus-mode {
-            animation: pulseFocus 4s infinite alternate ease-in-out;
+        /* 실행 중일 때만 아주 천천히 깜빡임 */
+        @keyframes subtlePulse {
+            0% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
         }
-        body.timer-running.break-mode-active {
-            animation: pulseBreak 4s infinite alternate ease-in-out;
+
+        body.timer-running .bg-glow {
+            opacity: 1;
+            animation: subtlePulse 5s infinite alternate ease-in-out;
         }
 
         .theme-btn {
@@ -77,54 +82,35 @@
             margin-bottom: 60px;
             text-align: center;
             padding: 0 30px;
+            position: relative;
+            z-index: 2;
         }
         .quote-text { 
-            font-size: 1rem; 
-            font-style: italic; 
-            color: var(--text-main); 
-            margin-bottom: 12px; 
-            line-height: 1.5;
+            font-size: 1rem; font-style: italic; color: var(--text-main); 
+            margin-bottom: 12px; line-height: 1.5;
         }
         .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
 
         #main-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; position: relative; z-index: 2;
         }
 
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
             font-size: clamp(6rem, 28vw, 13rem);
-            margin: 20px 0;
-            color: var(--accent-color);
+            margin: 20px 0; color: var(--accent-color);
             transition: color 0.5s ease;
         }
         #timer.break-mode { color: var(--break-color); }
 
-        .progress-dots {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 80px;
-        }
+        .progress-dots { display: flex; gap: 12px; margin-bottom: 80px; }
         .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--text-main);
-            opacity: 0.1;
+            width: 10px; height: 10px; border-radius: 50%;
+            background-color: var(--text-main); opacity: 0.1;
             transition: all 0.5s ease;
         }
-        .dot.active {
-            opacity: 0.8;
-            background-color: var(--accent-color);
-            transform: scale(1.2);
-        }
-        .break-mode-active .dot.active {
-            background-color: var(--break-color);
-        }
+        .dot.active { opacity: 0.8; background-color: var(--accent-color); transform: scale(1.2); }
 
         .buttons { display: flex; gap: 15px; justify-content: center; width: 100%; }
         .btn {
@@ -134,32 +120,26 @@
             transition: all 0.3s ease;
             background: var(--text-main); color: var(--bg-color);
         }
-        .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255,59,48,0.1); }
-        .break-mode-active .btn-start { background-color: var(--break-color); box-shadow: 0 10px 20px rgba(29,185,84,0.1); }
+        .btn-start { background-color: var(--accent-color); color: white; }
         .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
-        .btn:hover { transform: scale(1.05); }
 
         #finish-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100; opacity: 0; pointer-events: none;
+            transition: opacity 0.6s ease;
         }
         #finish-modal.show { opacity: 1; pointer-events: auto; }
-        .finish-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 15px; letter-spacing: -0.01em; }
-        .finish-desc { font-size: 0.95rem; color: var(--quote-color); margin-bottom: 40px; letter-spacing: 0.02em; }
-
     </style>
 </head>
 <body>
 
-<button class="theme-btn" onclick="toggleTheme()">THEME</button>
+<div class="bg-glow" id="glow"></div> <button class="theme-btn" onclick="toggleTheme()">THEME</button>
 
 <div id="finish-modal">
-    <div class="finish-title">Session Ended.</div>
-    <div class="finish-desc">설정된 모든 라운드가 종료되었습니다.</div>
+    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 15px;">Session Ended.</div>
+    <div style="font-size: 0.95rem; color: var(--quote-color); margin-bottom: 40px;">모든 라운드가 종료되었습니다.</div>
     <button class="btn btn-sub" onclick="closeModal()">Close and Reset</button>
 </div>
 
@@ -175,14 +155,9 @@
 
 <div id="main-wrapper">
     <div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
-    
-    <div class="progress-dots" id="dots-container">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
+    <div class="progress-dots">
+        <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
-    
     <div class="buttons">
         <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
         <button class="btn btn-start" onclick="startTimer()">START</button>
@@ -197,44 +172,44 @@
     let sessionCount = 1;
 
     const timerDisplay = document.getElementById('timer');
-    const wrapper = document.getElementById('main-wrapper');
     const dots = document.querySelectorAll('.dot');
     const modal = document.getElementById('finish-modal');
-    const body = document.body;
+    const glow = document.getElementById('glow');
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
         
-        document.title = `${m}:${s} - ${isWorking ? 'Focus' : 'Break'}`;
-
         if (!isWorking) {
             timerDisplay.classList.add('break-mode');
-            body.classList.add('break-mode-active');
-            body.classList.remove('focus-mode');
+            document.documentElement.style.setProperty('--glow-color', 'rgba(29, 185, 84, 0.03)');
         } else {
             timerDisplay.classList.remove('break-mode');
-            body.classList.remove('break-mode-active');
-            body.classList.add('focus-mode');
+            document.documentElement.style.setProperty('--glow-color', 'rgba(255, 59, 48, 0.03)');
         }
 
         dots.forEach((dot, index) => {
-            if (index < sessionCount) dot.classList.add('active');
-            else dot.classList.remove('active');
+            if (index < sessionCount) {
+                dot.classList.add('active');
+                dot.style.backgroundColor = isWorking ? 'var(--accent-color)' : 'var(--break-color)';
+            } else {
+                dot.classList.remove('active');
+                dot.style.backgroundColor = 'var(--text-main)';
+            }
         });
     }
 
     function startTimer() {
         if (timerId !== null) return;
-        body.classList.add('timer-running');
+        document.body.classList.add('timer-running');
         timerId = setInterval(() => {
             timeLeft--;
             updateDisplay();
             if (timeLeft === 0) {
                 clearInterval(timerId);
                 timerId = null;
-                body.classList.remove('timer-running');
+                document.body.classList.remove('timer-running');
                 handleSessionEnd();
             }
         }, 1000);
@@ -243,43 +218,31 @@
     function pauseTimer() {
         clearInterval(timerId);
         timerId = null;
-        body.classList.remove('timer-running');
+        document.body.classList.remove('timer-running');
     }
 
     function resetTimer() {
         pauseTimer();
-        isWorking = true;
-        sessionCount = 1;
-        timeLeft = 25 * 60;
+        isWorking = true; sessionCount = 1; timeLeft = 25 * 60;
         updateDisplay();
     }
 
     function handleSessionEnd() {
         if (isWorking) {
-            if (sessionCount >= 4) {
-                modal.classList.add('show');
-                return;
-            }
-            isWorking = false;
-            timeLeft = 5 * 60;
+            if (sessionCount >= 4) { modal.classList.add('show'); return; }
+            isWorking = false; timeLeft = 5 * 60;
         } else {
-            sessionCount++;
-            isWorking = true;
-            timeLeft = 25 * 60;
+            sessionCount++; isWorking = true; timeLeft = 25 * 60;
         }
         updateDisplay();
         startTimer();
     }
 
-    function closeModal() {
-        modal.classList.remove('show');
-        resetTimer();
-    }
+    function closeModal() { modal.classList.remove('show'); resetTimer(); }
 
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', targetTheme);
+        document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
     }
 
     updateDisplay();
