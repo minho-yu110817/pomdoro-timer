@@ -18,14 +18,14 @@
             --quote-color: #86868b;
             --accent-color: #ff3b30;
             --break-color: #1db954;
-            --glow-color: rgba(255, 59, 48, 0.08); /* 붉은 빛 농도 살짝 상향 */
+            --glow-color: rgba(255, 59, 48, 0.1);
         }
 
         [data-theme='dark'] {
             --bg-color: #121212;
             --text-main: #ffffff;
             --quote-color: #a1a1a6;
-            --glow-color: rgba(255, 59, 48, 0.12); /* 다크모드 가시성 확보 */
+            --glow-color: rgba(255, 59, 48, 0.15);
         }
 
         body {
@@ -43,26 +43,27 @@
             position: relative;
         }
 
-        /* ✨ 지름 500px의 은은한 후광(Glow) */
+        /* ✨ 반원 형태의 후광(Glow) */
         .bg-glow {
             position: absolute;
-            top: 25%; /* 타이머 살짝 위쪽 배치 */
+            top: 0; /* 화면 최상단 고정 */
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px; /* 요청하신 지름 500px */
-            height: 500px;
-            background: radial-gradient(circle, var(--glow-color) 0%, rgba(255,255,255,0) 75%);
-            border-radius: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 250px; /* 높이를 반으로 줄여 반원 형태 유지 */
+            /* 아래쪽으로만 퍼지는 반원 그라데이션 */
+            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(255,255,255,0) 80%);
+            border-bottom-left-radius: 250px;
+            border-bottom-right-radius: 250px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
             z-index: 0;
         }
 
-        /* 작동 시 부드러운 맥동 효과 */
         @keyframes subtlePulse {
-            0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.95); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            0% { opacity: 0.3; transform: translateX(-50%) scale(0.95); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
         }
 
         body.timer-running .bg-glow {
@@ -141,7 +142,7 @@
 
 <div id="finish-modal">
     <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 15px;">Session Ended.</div>
-    <div style="font-size: 0.95rem; color: var(--quote-color); margin-bottom: 40px;">모든 라운드가 종료되었습니다.</div>
+    <div style="font-size: 0.95rem; color: var(--quote-color); margin-bottom: 40px;">모든 세션이 종료되었습니다.</div>
     <button class="btn btn-sub" onclick="closeModal()">Close and Reset</button>
 </div>
 
@@ -184,10 +185,10 @@
         
         if (!isWorking) {
             timerDisplay.classList.add('break-mode');
-            document.documentElement.style.setProperty('--glow-color', 'rgba(29, 185, 84, 0.08)');
+            document.documentElement.style.setProperty('--glow-color', 'rgba(29, 185, 84, 0.1)');
         } else {
             timerDisplay.classList.remove('break-mode');
-            document.documentElement.style.setProperty('--glow-color', 'rgba(255, 59, 48, 0.08)');
+            document.documentElement.style.setProperty('--glow-color', 'rgba(255, 59, 48, 0.1)');
         }
 
         dots.forEach((dot, index) => {
