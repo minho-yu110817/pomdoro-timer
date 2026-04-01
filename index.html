@@ -48,7 +48,6 @@
             z-index: 11;
         }
 
-        /* 명언 섹션 */
         .quote-container {
             margin-bottom: 60px;
             text-align: center;
@@ -71,7 +70,6 @@
             width: 100%;
         }
 
-        /* 타이머 숫자 */
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
             font-size: clamp(6rem, 28vw, 13rem);
@@ -81,11 +79,10 @@
         }
         #timer.break-mode { color: var(--break-color); }
 
-        /* 🔴 프로그레스 도트 디자인 */
         .progress-dots {
             display: flex;
             gap: 12px;
-            margin-bottom: 80px; /* 타이머와 버튼 사이 간격 유지 */
+            margin-bottom: 80px;
         }
         .dot {
             width: 10px;
@@ -116,11 +113,31 @@
         .break-mode-active .btn-start { background-color: var(--break-color); box-shadow: 0 10px 20px rgba(29,185,84,0.1); }
         .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
         .btn:hover { transform: scale(1.05); }
+
+        /* 🏆 커스텀 알림 모달 - 차분한 톤으로 변경 */
+        #finish-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #finish-modal.show { opacity: 1; pointer-events: auto; }
+        .finish-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 15px; letter-spacing: -0.01em; }
+        .finish-desc { font-size: 0.95rem; color: var(--quote-color); margin-bottom: 40px; letter-spacing: 0.02em; }
+
     </style>
 </head>
 <body>
 
 <button class="theme-btn" onclick="toggleTheme()">THEME</button>
+
+<div id="finish-modal">
+    <div class="finish-title">Session Ended.</div>
+    <div class="finish-desc">설정된 모든 라운드가 종료되었습니다.</div>
+    <button class="btn btn-sub" onclick="closeModal()">Close and Reset</button>
+</div>
 
 <div class="quote-container">
     <div class="quote-text">
@@ -158,13 +175,13 @@
     const timerDisplay = document.getElementById('timer');
     const wrapper = document.getElementById('main-wrapper');
     const dots = document.querySelectorAll('.dot');
+    const modal = document.getElementById('finish-modal');
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
         
-        // 탭 제목 실시간 업데이트 (추가 서비스!)
         document.title = `${m}:${s} - ${isWorking ? 'Focus' : 'Break'}`;
 
         if (!isWorking) {
@@ -175,7 +192,6 @@
             wrapper.classList.remove('break-mode-active');
         }
 
-        // 도트 업데이트
         dots.forEach((dot, index) => {
             if (index < sessionCount) dot.classList.add('active');
             else dot.classList.remove('active');
@@ -211,8 +227,7 @@
     function handleSessionEnd() {
         if (isWorking) {
             if (sessionCount >= 4) {
-                alert("완벽하게 마쳤습니다! 고생하셨어요.");
-                resetTimer();
+                modal.classList.add('show');
                 return;
             }
             isWorking = false;
@@ -224,6 +239,11 @@
         }
         updateDisplay();
         startTimer();
+    }
+
+    function closeModal() {
+        modal.classList.remove('show');
+        resetTimer();
     }
 
     function toggleTheme() {
