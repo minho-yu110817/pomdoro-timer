@@ -18,7 +18,7 @@
             --quote-color: #a1a1a6;
             --accent-color: #ff3b30;
             --break-color: #1db954;
-            --glow-color: rgba(255, 59, 48, 0.2); /* 가시성 위해 살짝 더 진하게 */
+            --glow-color: rgba(255, 59, 48, 0.18);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,20 +35,20 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             position: fixed;
-            padding: 12vh 0 10vh 0; /* 상단 여백을 늘려 명언을 살짝 내림 */
+            padding: 10vh 0 10vh 0; /* 명언을 내리기 위해 상단 패딩 소폭 증가 */
         }
 
-        /* ✨ 수정된 반원: 가로를 넓히고 타이머 상단에 닿도록 조정 */
+        /* ✨ 수정된 반원: 가로를 넓히고 타이머 상단에 살짝 닿도록 배치 */
         .bg-glow {
             position: absolute;
-            top: 32%; /* 타이머 쪽으로 더 내려서 살짝 닿게 배치 */
+            top: 40%; /* 위치를 더 내려서 타이머와 겹치도록 조정 */
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 700px; /* 가로 확장 */
-            height: 350px; /* 세로 확장 */
+            width: 800px; /* 가로 크기 확대 */
+            height: 350px; /* 세로 크기 확대 */
             background: radial-gradient(circle at bottom, var(--glow-color) 0%, rgba(18, 18, 18, 0) 75%);
-            border-top-left-radius: 350px;
-            border-top-right-radius: 350px;
+            border-top-left-radius: 400px;
+            border-top-right-radius: 400px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 1.5s ease-in-out, background 0.5s ease;
@@ -56,8 +56,8 @@
         }
 
         @keyframes subtlePulse {
-            0% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
+            0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.98); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
         }
 
         body.timer-running .bg-glow {
@@ -65,29 +65,24 @@
             animation: subtlePulse 4s infinite alternate ease-in-out;
         }
 
-        /* 상단 명언: 크기 키우고 간격 조정 */
+        /* 상단 명언: 크기 확대 및 위치 하향 */
         .quote-container {
             text-align: center;
             padding: 0 40px;
             z-index: 2;
             user-select: none;
             flex-shrink: 0;
+            margin-top: 20px; /* 명언을 아래로 살짝 밀어줌 */
         }
         .quote-text { 
-            font-size: 1.4rem; /* 더 크게 수정 */
+            font-size: 1.4rem; /* 폰트 크기 확대 */
             font-style: italic; 
             line-height: 1.5; 
-            margin-bottom: 18px; 
+            margin-bottom: 15px; 
             font-weight: 300;
         }
-        .quote-author { 
-            font-size: 0.9rem; 
-            letter-spacing: 0.3rem; 
-            color: var(--quote-color); 
-            text-transform: uppercase; 
-        }
+        .quote-author { font-size: 0.9rem; letter-spacing: 0.3rem; color: var(--quote-color); text-transform: uppercase; }
 
-        /* 중앙 타이머 섹션 */
         #main-wrapper {
             display: flex;
             flex-direction: column;
@@ -105,19 +100,18 @@
             transition: color 0.5s ease;
             user-select: none;
             line-height: 0.9;
-            margin-bottom: 40px; /* 점과의 간격 확보 */
+            margin-bottom: 30px;
         }
         #timer.break-mode { color: var(--break-color); }
 
-        .progress-dots { display: flex; gap: 20px; }
+        .progress-dots { display: flex; gap: 18px; }
         .dot {
-            width: 14px; height: 14px; border-radius: 50%;
+            width: 12px; height: 12px; border-radius: 50%;
             background-color: #fff; opacity: 0.1;
             transition: all 0.5s ease;
         }
         .dot.active { opacity: 0.8; transform: scale(1.3); }
 
-        /* 하단 버튼 */
         .buttons { 
             display: flex; 
             gap: 20px; 
@@ -126,8 +120,8 @@
         }
         .btn {
             outline: none; cursor: pointer; border: none;
-            padding: 22px 50px; border-radius: 50px;
-            font-size: 1.1rem; font-weight: 800;
+            padding: 20px 45px; border-radius: 50px;
+            font-size: 1rem; font-weight: 800;
             transition: all 0.2s ease;
             background: #fff; color: #000;
         }
@@ -135,7 +129,7 @@
         .btn-start { 
             background-color: var(--accent-color); 
             color: white; 
-            padding: 22px 70px;
+            padding: 20px 60px;
             box-shadow: 0 15px 30px rgba(255, 59, 48, 0.2);
         }
         .btn-sub { background: transparent; border: 2px solid rgba(255,255,255,0.2); color: #fff; }
@@ -198,7 +192,7 @@
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.textContent = `${m} : ${s}`;
         
-        const color = isWorking ? 'rgba(255, 59, 48, 0.2)' : 'rgba(29, 185, 84, 0.2)';
+        const color = isWorking ? 'rgba(255, 59, 48, 0.18)' : 'rgba(29, 185, 84, 0.18)';
         document.documentElement.style.setProperty('--glow-color', color);
 
         if (!isWorking) timerDisplay.classList.add('break-mode');
