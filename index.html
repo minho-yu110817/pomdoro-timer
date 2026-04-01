@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="dark"> <head>
+<html lang="ko" data-theme="dark">
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pure Pomodoro</title>
     <style>
         @font-face {
@@ -12,7 +13,7 @@
         }
 
         :root {
-            /* 라이트 모드 변수를 다크 모드 값으로 대체하여 고정 */
+            /* 라이트 모드 제거 및 다크 모드 전용 설정 */
             --bg-color: #121212;
             --text-main: #ffffff;
             --quote-color: #a1a1a6;
@@ -28,26 +29,28 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            width: 100vw;
             background-color: var(--bg-color);
             color: var(--text-main);
-            transition: all 0.5s ease;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            /* 스크롤 절대 방지 */
             overflow: hidden;
-            position: relative;
+            position: fixed;
+            left: 0;
+            top: 0;
         }
 
-        /* ✨ 반원 형태의 후광(Glow) */
+        /* ✨ 반원 형태의 후광(Glow) - 크기 유지 */
         .bg-glow {
             position: absolute;
-            top: 0; 
+            top: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 1400px;
-            height: 700px; 
-            /* 배경이 항상 어두우므로 투명도 최적화 */
-            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(0,0,0,0) 80%);
-            border-bottom-left-radius: 250px;
-            border-bottom-right-radius: 250px;
+            height: 700px;
+            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(18, 18, 18, 0) 80%);
+            border-bottom-left-radius: 700px;
+            border-bottom-right-radius: 700px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
@@ -64,17 +67,14 @@
             animation: subtlePulse 4s infinite alternate ease-in-out;
         }
 
-        /* 테마 버튼 제거 (기능 삭제로 인한 불필요) */
-        .theme-btn {
-            display: none;
-        }
-
+        /* 명언 섹션 */
         .quote-container {
             margin-bottom: 60px;
             text-align: center;
             padding: 0 30px;
             position: relative;
             z-index: 2;
+            user-select: none;
         }
         .quote-text { 
             font-size: 1rem; font-style: italic; color: var(--text-main); 
@@ -82,6 +82,7 @@
         }
         .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
 
+        /* 메인 타이머 섹션 */
         #main-wrapper {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 100%; position: relative; z-index: 2;
@@ -92,6 +93,7 @@
             font-size: clamp(6rem, 28vw, 13rem);
             margin: 20px 0; color: var(--accent-color);
             transition: color 0.5s ease;
+            user-select: none;
         }
         #timer.break-mode { color: var(--break-color); }
 
@@ -103,6 +105,7 @@
         }
         .dot.active { opacity: 0.8; background-color: var(--accent-color); transform: scale(1.2); }
 
+        /* 버튼 섹션 */
         .buttons { display: flex; gap: 15px; justify-content: center; width: 100%; }
         .btn {
             outline: none; cursor: pointer; border: none;
@@ -114,6 +117,7 @@
         .btn-start { background-color: var(--accent-color); color: white; box-shadow: 0 10px 20px rgba(255,59,48,0.1); }
         .btn-sub { background: transparent; border: 1.5px solid var(--text-main); color: var(--text-main); opacity: 0.6; }
 
+        /* 종료 모달 */
         #finish-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color);
@@ -230,7 +234,7 @@
 
     function closeModal() { modal.classList.remove('show'); resetTimer(); }
 
-    // 테마 변경 기능 삭제
+    // toggleTheme 함수 제거됨
 
     updateDisplay();
 </script>
