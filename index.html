@@ -25,7 +25,7 @@
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 중앙 집중 배치 */
+            justify-content: space-between; /* 위-중간-아래로 다시 분산 */
             align-items: center;
             height: 100vh;
             width: 100vw;
@@ -34,7 +34,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             position: fixed;
-            gap: 7vh; /* 요소들 사이의 간격을 좁혀서 가운데로 모음 */
+            padding: 10vh 0 10vh 0; /* 상하단 적정 여백 */
         }
 
         /* 명언 섹션 */
@@ -43,6 +43,7 @@
             padding: 0 40px;
             z-index: 2;
             user-select: none;
+            flex-shrink: 0;
         }
         .quote-text { 
             font-size: 1.1rem; 
@@ -59,18 +60,19 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100%;
             z-index: 2;
+            flex-grow: 1; /* 타이머가 중앙 영역을 넓게 차지하게 함 */
         }
 
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            /* 타이머 크기 아주 미세하게 상향 */
-            font-size: clamp(7.5rem, 32vw, 14rem); 
+            font-size: clamp(7.5rem, 32vw, 14.5rem); /* 타이머 크기 유지 및 미세 상향 */
             color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
-            line-height: 0.9;
-            margin-bottom: 20px;
+            line-height: 1;
+            margin-bottom: 25px;
         }
         #timer.break-mode { color: var(--break-color); }
 
@@ -87,6 +89,7 @@
             display: flex; 
             gap: 15px; 
             z-index: 2;
+            flex-shrink: 0;
         }
         .btn {
             outline: none; cursor: pointer; border: none;
