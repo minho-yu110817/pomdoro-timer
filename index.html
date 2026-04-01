@@ -21,43 +21,43 @@
             --glow-color: rgba(255, 59, 48, 0.15);
         }
 
-        /* 최적화: 여백 제거 및 스크롤 완전 봉쇄 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between; /* 위-중간-아래 균형 배치 */
             align-items: center;
             height: 100vh;
             width: 100vw;
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* 스크롤 방지 */
-            position: fixed; /* 바운스 스크롤 방지 */
+            overflow: hidden;
+            position: fixed;
+            padding: 60px 0 80px 0; /* 상하단 여백 확보 */
         }
 
-        /* ✨ 최적화된 반원 후광: 화면 너비(vw)에 따라 크기가 변함 */
+        /* ✨ 반원 크기 최적화: 너무 크지 않게 600px 정도로 조절 */
         .bg-glow {
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 1000px; /* 화면 너비보다 살짝 크게 설정하여 부드럽게 */
-            height: 500px;  /* 너비의 절반으로 반원 유지 */
-            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(18, 18, 18, 0) 75%);
-            border-bottom-left-radius: 50%;
-            border-bottom-right-radius: 50%;
+            width: 600px; 
+            height: 300px;
+            background: radial-gradient(circle at top, var(--glow-color) 0%, rgba(18, 18, 18, 0) 80%);
+            border-bottom-left-radius: 300px;
+            border-bottom-right-radius: 300px;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out, background 0.5s ease;
+            transition: opacity 1.5s ease-in-out;
             z-index: 0;
         }
 
         @keyframes subtlePulse {
-            0% { opacity: 0.3; transform: translateX(-50%) scale(0.98); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1.02); }
+            0% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
         }
 
         body.timer-running .bg-glow {
@@ -65,50 +65,72 @@
             animation: subtlePulse 4s infinite alternate ease-in-out;
         }
 
+        /* 상단: 명언 */
         .quote-container {
-            margin-bottom: 5vh;
             text-align: center;
-            padding: 0 20px;
+            padding: 0 30px;
             z-index: 2;
             user-select: none;
+            flex-shrink: 0;
         }
-        .quote-text { font-size: 1rem; font-style: italic; line-height: 1.5; margin-bottom: 8px; }
-        .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
+        .quote-text { font-size: 0.95rem; font-style: italic; line-height: 1.6; margin-bottom: 10px; opacity: 0.9; }
+        .quote-author { font-size: 0.7rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
 
+        /* 중앙: 타이머와 점 */
         #main-wrapper {
-            display: flex; flex-direction: column; align-items: center;
-            width: 100%; z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            z-index: 2;
+            flex-grow: 1; /* 가용 공간 차지 */
         }
 
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(5rem, 25vw, 12rem);
-            margin: 10px 0; color: var(--accent-color);
+            font-size: clamp(6rem, 28vw, 13rem);
+            color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
+            line-height: 1;
+            margin-bottom: 20px;
         }
         #timer.break-mode { color: var(--break-color); }
 
-        .progress-dots { display: flex; gap: 12px; margin-bottom: 5vh; }
+        .progress-dots { display: flex; gap: 14px; }
         .dot {
-            width: 10px; height: 10px; border-radius: 50%;
+            width: 8px; height: 8px; border-radius: 50%;
             background-color: #fff; opacity: 0.1;
             transition: all 0.5s ease;
         }
         .dot.active { opacity: 0.8; transform: scale(1.2); }
 
-        .buttons { display: flex; gap: 15px; }
+        /* 하단: 버튼 배치 */
+        .buttons { 
+            display: flex; 
+            gap: 12px; 
+            z-index: 2;
+            flex-shrink: 0;
+        }
         .btn {
             outline: none; cursor: pointer; border: none;
-            padding: 15px 35px; border-radius: 30px;
-            font-size: 0.8rem; font-weight: 800;
-            transition: transform 0.2s ease, opacity 0.2s ease;
+            padding: 16px 32px; border-radius: 40px;
+            font-size: 0.8rem; font-weight: 800; letter-spacing: 0.05rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: #fff; color: #000;
         }
         .btn:active { transform: scale(0.95); }
-        .btn-start { background-color: var(--accent-color); color: white; }
-        .btn-sub { background: transparent; border: 1px solid #fff; color: #fff; opacity: 0.5; }
+        .btn-start { 
+            background-color: var(--accent-color); 
+            color: white; 
+            padding: 16px 48px; /* 시작 버튼 강조 */
+            box-shadow: 0 10px 20px rgba(255, 59, 48, 0.15);
+        }
+        .btn-sub { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+        .btn-sub:hover { border-color: #fff; }
 
+        /* 모달 */
         #finish-modal {
             position: fixed; inset: 0;
             background: var(--bg-color);
@@ -132,7 +154,7 @@
 <div class="quote-container">
     <div class="quote-text">
         "The great pleasure in life is doing what people say you cannot do."<br>
-        <span style="font-size: 0.8rem; font-style: normal; opacity: 0.7; display: block; margin-top: 5px;">
+        <span style="font-size: 0.8rem; font-style: normal; opacity: 0.6; display: block; margin-top: 8px;">
             인생의 큰 즐거움은 사람들이 할 수 없다는 일을 해내는 것이다.
         </span>
     </div>
@@ -144,11 +166,12 @@
     <div class="progress-dots" id="dots">
         <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
-    <div class="buttons">
-        <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
-        <button class="btn btn-start" onclick="startTimer()">START</button>
-        <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
-    </div>
+</div>
+
+<div class="buttons">
+    <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
+    <button class="btn btn-start" onclick="startTimer()">START</button>
+    <button class="btn btn-sub" onclick="pauseTimer()">PAUSE</button>
 </div>
 
 <script>
