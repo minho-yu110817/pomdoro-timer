@@ -64,16 +64,15 @@
             flex-grow: 1;
         }
 
-        /* ✨ 타이머: TtTogether 폰트 + Noisy 필터 적용 */
+        /* ✨ 타이머 크기만 살짝 키움 (기존 7.5~14.5 -> 8.5~16.5) */
         #timer {
             font-family: 'TtTogether', sans-serif;
-            font-size: clamp(7.5rem, 32vw, 14.5rem);
+            font-size: clamp(8.5rem, 36vw, 16.5rem); 
             color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
             line-height: 1;
             margin-bottom: 25px;
-            /* SVG 필터 연결 */
             filter: url(#noisy-effect);
         }
         #timer.break-mode { color: var(--break-color); }
@@ -119,7 +118,6 @@
         }
         #finish-modal.show { opacity: 1; pointer-events: auto; }
 
-        /* 화면에 보이지 않는 SVG 필터 정의 */
         .svg-filters {
             position: absolute;
             width: 0;
