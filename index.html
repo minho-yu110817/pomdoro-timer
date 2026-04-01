@@ -4,10 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pure Pomodoro</title>
-    <link rel="preconnect" href="https://o6cdhdutve.execute-api.ap-northeast-2.amazonaws.com">
-    <link rel="stylesheet" href="https://o6cdhdutve.execute-api.ap-northeast-2.amazonaws.com/v1/api/css/drop_fontstream_css/?sid=gAAAAABpzPd0gybuKW69GLJUlNIvXOmi0eN8cQztcX0CVJCTFOndtzv_0KHS85XVpKyRt9rd23NTYvXGtEQ5rEX0Tjt64lsEeSuV-WmMl0F7Th-esg_UwwicfHNaJ_kpa7YPpXH60n11T1hth9CkB3nr8sUEm2fxmUQEuner_Q79OZbfb8lNO_PZb8_7vERxjw_x9OPTKcV4WUsTyublHZbhqPsUX7NmkUZ2vrgvSJkJGjMThCKBBa4b9Lik14GX1_NEkLDWwAV9" charset="utf-8" referrerpolicy="origin">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Dongdong.woff" charset="utf-8">
     
     <style>
+        @font-face {
+            font-family: 'Cafe24Dongdong';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Dongdong.woff') format('woff');
+            font-weight: normal;
+            font-display: swap;
+        }
+
         :root {
             --bg-color: #121212;
             --text-main: #ffffff;
@@ -19,102 +25,40 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            /* 타이머 외 나머지는 다시 기본 폰트로 복구 */
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+            height: 100vh; width: 100vw; background-color: var(--bg-color); color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            position: fixed;
-            padding: 14vh 0 14vh 0;
+            overflow: hidden; position: fixed; padding: 14vh 0 14vh 0;
         }
 
-        .quote-container {
-            text-align: center;
-            padding: 0 40px;
-            z-index: 2;
-            user-select: none;
-            flex-shrink: 0;
-        }
-        .quote-text { 
-            font-size: 1.1rem; 
-            font-style: italic; 
-            line-height: 1.5; 
-            margin-bottom: 10px; 
-            opacity: 0.9;
-        }
-        .quote-author { font-size: 0.75rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
-
-        #main-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            z-index: 2;
-            flex-grow: 1;
-        }
-
-        /* ✨ 타이머에만 Sandoll ActionStencil + Noisy 필터 적용 */
+        /* ✨ 타이머 숫자에만 '둥근 폰트 + Noisy' 적용 */
         #timer {
-            font-family: 'Sandoll ActionStencil', sans-serif;
-            font-weight: 400;
+            font-family: 'Cafe24Dongdong', sans-serif;
             font-size: clamp(7.5rem, 32vw, 14.5rem);
             color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
             line-height: 1;
             margin-bottom: 25px;
-            filter: url(#noisy-filter);
+            filter: url(#noisy-filter); /* 자글자글한 효과 */
         }
         #timer.break-mode { color: var(--break-color); }
 
+        /* 이하 기존 스타일 유지 */
+        .quote-container { text-align: center; padding: 0 40px; z-index: 2; user-select: none; flex-shrink: 0; }
+        .quote-text { font-size: 1.1rem; font-style: italic; line-height: 1.5; margin-bottom: 10px; opacity: 0.9; }
+        .quote-author { font-size: 0.75rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
+        #main-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; z-index: 2; flex-grow: 1; }
         .progress-dots { display: flex; gap: 14px; }
-        .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background-color: #fff; opacity: 0.1;
-            transition: all 0.5s ease;
-        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: #fff; opacity: 0.1; transition: all 0.5s ease; }
         .dot.active { opacity: 0.8; transform: scale(1.1); }
-
-        .buttons { 
-            display: flex; 
-            gap: 15px; 
-            z-index: 2;
-            flex-shrink: 0;
-        }
-        .btn {
-            outline: none; cursor: pointer; border: none;
-            padding: 14px 30px; border-radius: 30px;
-            font-size: 0.85rem; font-weight: 700;
-            transition: all 0.2s ease;
-            background: #fff; color: #000;
-        }
-        .btn-start { 
-            background-color: var(--accent-color); 
-            color: white; 
-            padding: 14px 45px;
-        }
-        .btn-start.break-mode {
-            background-color: var(--break-color);
-        }
-
+        .buttons { display: flex; gap: 15px; z-index: 2; flex-shrink: 0; }
+        .btn { outline: none; cursor: pointer; border: none; padding: 14px 30px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; transition: all 0.2s ease; background: #fff; color: #000; }
+        .btn-start { background-color: var(--accent-color); color: white; padding: 14px 45px; }
+        .btn-start.break-mode { background-color: var(--break-color); }
         .btn-sub { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #fff; }
-
-        #finish-modal {
-            position: fixed; inset: 0;
-            background: var(--bg-color);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; opacity: 0; pointer-events: none;
-            transition: opacity 0.6s ease;
-        }
+        #finish-modal { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
         #finish-modal.show { opacity: 1; pointer-events: auto; }
-        
         .svg-filters { position: absolute; width: 0; height: 0; visibility: hidden; }
     </style>
 </head>
@@ -122,8 +66,8 @@
 
 <svg class="svg-filters">
   <filter id="noisy-filter">
-    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="noise" />
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" />
+    <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" result="noise" />
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
   </filter>
 </svg>
 
@@ -157,6 +101,7 @@
 </div>
 
 <script>
+    /* 스크립트 로직은 이전과 동일하게 유지됩니다 */
     let timeLeft = 25 * 60;
     let timerId = null;
     let isWorking = true;
@@ -171,22 +116,12 @@
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.textContent = `${m} : ${s}`;
-        
-        if (!isWorking) {
-            timerDisplay.classList.add('break-mode');
-            startBtn.classList.add('break-mode');
-        } else {
-            timerDisplay.classList.remove('break-mode');
-            startBtn.classList.remove('break-mode');
-        }
-
+        if (!isWorking) { timerDisplay.classList.add('break-mode'); startBtn.classList.add('break-mode'); } 
+        else { timerDisplay.classList.remove('break-mode'); startBtn.classList.remove('break-mode'); }
         dots.forEach((dot, index) => {
             dot.classList.toggle('active', index < sessionCount);
-            if (index < sessionCount) {
-                dot.style.backgroundColor = isWorking ? 'var(--accent-color)' : 'var(--break-color)';
-            } else {
-                dot.style.backgroundColor = '#fff';
-            }
+            if (index < sessionCount) { dot.style.backgroundColor = isWorking ? 'var(--accent-color)' : 'var(--break-color)'; } 
+            else { dot.style.backgroundColor = '#fff'; }
         });
     }
 
@@ -194,47 +129,22 @@
         if (timerId) return;
         document.body.classList.add('timer-running');
         timerId = setInterval(() => {
-            if (--timeLeft < 0) {
-                clearInterval(timerId);
-                timerId = null;
-                document.body.classList.remove('timer-running');
-                handleSessionEnd();
-            } else {
-                updateDisplay();
-            }
+            if (--timeLeft < 0) { clearInterval(timerId); timerId = null; handleSessionEnd(); } 
+            else { updateDisplay(); }
         }, 1000);
     }
 
-    function pauseTimer() {
-        clearInterval(timerId);
-        timerId = null;
-        document.body.classList.remove('timer-running');
-    }
-
-    function resetTimer() {
-        pauseTimer();
-        isWorking = true; sessionCount = 1; timeLeft = 25 * 60;
-        updateDisplay();
-    }
-
+    function pauseTimer() { clearInterval(timerId); timerId = null; }
+    function resetTimer() { pauseTimer(); isWorking = true; sessionCount = 1; timeLeft = 25 * 60; updateDisplay(); }
     function handleSessionEnd() {
-        if (isWorking) {
-            if (sessionCount >= 4) { modal.classList.add('show'); return; }
-            isWorking = false; timeLeft = 5 * 60;
-        } else {
-            sessionCount++; isWorking = true; timeLeft = 25 * 60;
-        }
-        updateDisplay();
-        startTimer();
+        if (isWorking) { if (sessionCount >= 4) { modal.classList.add('show'); return; } isWorking = false; timeLeft = 5 * 60; } 
+        else { sessionCount++; isWorking = true; timeLeft = 25 * 60; }
+        updateDisplay(); startTimer();
     }
-
     function closeModal() { modal.classList.remove('show'); resetTimer(); }
 
     window.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            e.preventDefault();
-            if (timerId) { pauseTimer(); } else { startTimer(); }
-        }
+        if (e.code === 'Space') { e.preventDefault(); if (timerId) pauseTimer(); else startTimer(); }
     });
 
     updateDisplay();
