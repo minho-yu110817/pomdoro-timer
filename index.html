@@ -9,7 +9,7 @@
             font-family: 'KerisKeduLine';
             src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-3@1.0/KERISKEDU_Line.woff2') format('woff2');
             font-weight: normal;
-           font-display: swap;
+            font-display: swap;
         }
 
         :root {
@@ -18,7 +18,6 @@
             --quote-color: #a1a1a6;
             --accent-color: #ff3b30;
             --break-color: #1db954;
-            --glow-color: rgba(255, 59, 48, 0.18);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,54 +34,28 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             position: fixed;
-            padding: 10vh 0 10vh 0; /* 명언을 내리기 위해 상단 패딩 소폭 증가 */
+            padding: 12vh 0 10vh 0;
         }
 
-        /* ✨ 수정된 반원: 가로를 넓히고 타이머 상단에 살짝 닿도록 배치 */
-        .bg-glow {
-            position: absolute;
-            top: 40%; /* 위치를 더 내려서 타이머와 겹치도록 조정 */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px; /* 가로 크기 확대 */
-            height: 350px; /* 세로 크기 확대 */
-            background: radial-gradient(circle at bottom, var(--glow-color) 0%, rgba(18, 18, 18, 0) 75%);
-            border-top-left-radius: 400px;
-            border-top-right-radius: 400px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out, background 0.5s ease;
-            z-index: 0;
-        }
-
-        @keyframes subtlePulse {
-            0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.98); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
-        }
-
-        body.timer-running .bg-glow {
-            opacity: 1;
-            animation: subtlePulse 4s infinite alternate ease-in-out;
-        }
-
-        /* 상단 명언: 크기 확대 및 위치 하향 */
+        /* 명언 섹션: 크기 축소 및 정돈 */
         .quote-container {
             text-align: center;
             padding: 0 40px;
             z-index: 2;
             user-select: none;
             flex-shrink: 0;
-            margin-top: 20px; /* 명언을 아래로 살짝 밀어줌 */
         }
         .quote-text { 
-            font-size: 1.4rem; /* 폰트 크기 확대 */
+            font-size: 1.1rem; 
             font-style: italic; 
             line-height: 1.5; 
-            margin-bottom: 15px; 
+            margin-bottom: 10px; 
             font-weight: 300;
+            opacity: 0.9;
         }
-        .quote-author { font-size: 0.9rem; letter-spacing: 0.3rem; color: var(--quote-color); text-transform: uppercase; }
+        .quote-author { font-size: 0.75rem; letter-spacing: 0.2rem; color: var(--quote-color); text-transform: uppercase; }
 
+        /* 중앙 타이머: 크기 축소 */
         #main-wrapper {
             display: flex;
             flex-direction: column;
@@ -95,44 +68,45 @@
 
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
-            font-size: clamp(8rem, 35vw, 16rem);
+            font-size: clamp(5rem, 22vw, 10rem); /* 크기 대폭 축소 */
             color: var(--accent-color);
             transition: color 0.5s ease;
             user-select: none;
-            line-height: 0.9;
-            margin-bottom: 30px;
+            line-height: 1;
+            margin-bottom: 25px;
         }
         #timer.break-mode { color: var(--break-color); }
 
-        .progress-dots { display: flex; gap: 18px; }
+        /* 세션 점: 크기 축소 */
+        .progress-dots { display: flex; gap: 14px; }
         .dot {
-            width: 12px; height: 12px; border-radius: 50%;
+            width: 8px; height: 8px; border-radius: 50%;
             background-color: #fff; opacity: 0.1;
             transition: all 0.5s ease;
         }
-        .dot.active { opacity: 0.8; transform: scale(1.3); }
+        .dot.active { opacity: 0.8; transform: scale(1.1); }
 
+        /* 하단 버튼: 크기 축소 및 간격 조정 */
         .buttons { 
             display: flex; 
-            gap: 20px; 
+            gap: 15px; 
             z-index: 2;
             flex-shrink: 0;
         }
         .btn {
             outline: none; cursor: pointer; border: none;
-            padding: 20px 45px; border-radius: 50px;
-            font-size: 1rem; font-weight: 800;
+            padding: 14px 30px; border-radius: 30px;
+            font-size: 0.85rem; font-weight: 700;
             transition: all 0.2s ease;
             background: #fff; color: #000;
         }
-        .btn:active { transform: scale(0.92); }
+        .btn:active { transform: scale(0.95); }
         .btn-start { 
             background-color: var(--accent-color); 
             color: white; 
-            padding: 20px 60px;
-            box-shadow: 0 15px 30px rgba(255, 59, 48, 0.2);
+            padding: 14px 45px;
         }
-        .btn-sub { background: transparent; border: 2px solid rgba(255,255,255,0.2); color: #fff; }
+        .btn-sub { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #fff; }
 
         #finish-modal {
             position: fixed; inset: 0;
@@ -146,18 +120,16 @@
 </head>
 <body>
 
-<div class="bg-glow" id="glow"></div>
-
 <div id="finish-modal">
-    <div style="font-size: 2rem; font-weight: 700; margin-bottom: 15px;">Session Ended.</div>
-    <div style="font-size: 1.1rem; color: var(--quote-color); margin-bottom: 40px;">모든 세션이 종료되었습니다.</div>
+    <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Session Ended.</div>
+    <div style="font-size: 0.9rem; color: var(--quote-color); margin-bottom: 30px;">모든 세션이 종료되었습니다.</div>
     <button class="btn btn-sub" onclick="closeModal()">Close and Reset</button>
 </div>
 
 <div class="quote-container">
     <div class="quote-text">
         "The great pleasure in life is doing what people say you cannot do."<br>
-        <span style="font-size: 1rem; font-style: normal; opacity: 0.6; display: block; margin-top: 12px;">
+        <span style="font-size: 0.85rem; font-style: normal; opacity: 0.6; display: block; margin-top: 8px;">
             인생의 큰 즐거움은 사람들이 할 수 없다는 일을 해내는 것이다.
         </span>
     </div>
@@ -192,9 +164,6 @@
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.textContent = `${m} : ${s}`;
         
-        const color = isWorking ? 'rgba(255, 59, 48, 0.18)' : 'rgba(29, 185, 84, 0.18)';
-        document.documentElement.style.setProperty('--glow-color', color);
-
         if (!isWorking) timerDisplay.classList.add('break-mode');
         else timerDisplay.classList.remove('break-mode');
 
