@@ -48,7 +48,7 @@
             z-index: 11;
         }
 
-        /* 명언 섹션: 타이머와의 간격을 위해 하단 마진 확대 */
+        /* 명언 섹션 */
         .quote-container {
             margin-bottom: 60px;
             text-align: center;
@@ -63,7 +63,6 @@
         }
         .quote-author { font-size: 0.7rem; letter-spacing: 0.15rem; color: var(--quote-color); text-transform: uppercase; }
 
-        /* 중앙 정렬 레이아웃 */
         #main-wrapper {
             display: flex;
             flex-direction: column;
@@ -72,7 +71,7 @@
             width: 100%;
         }
 
-        /* 타이머: 주인공답게 여백 확보 */
+        /* 타이머 숫자 */
         #timer {
             font-family: 'KerisKeduLine', sans-serif;
             font-size: clamp(6rem, 28vw, 13rem);
@@ -82,8 +81,28 @@
         }
         #timer.break-mode { color: var(--break-color); }
 
-        /* 세션 정보: 타이머 하단 여백 확대 */
-        .session-info { font-size: 0.8rem; margin-bottom: 80px; letter-spacing: 0.3rem; opacity: 0.4; }
+        /* 🔴 프로그레스 도트 디자인 */
+        .progress-dots {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 80px; /* 타이머와 버튼 사이 간격 유지 */
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--text-main);
+            opacity: 0.1;
+            transition: all 0.5s ease;
+        }
+        .dot.active {
+            opacity: 0.8;
+            background-color: var(--accent-color);
+            transform: scale(1.2);
+        }
+        .break-mode-active .dot.active {
+            background-color: var(--break-color);
+        }
 
         .buttons { display: flex; gap: 15px; justify-content: center; width: 100%; }
         .btn {
@@ -115,7 +134,13 @@
 
 <div id="main-wrapper">
     <div id="timer">25 <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> 00</div>
-    <div class="session-info" id="session-count">ROUND 1 / 4</div>
+    
+    <div class="progress-dots" id="dots-container">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
     
     <div class="buttons">
         <button class="btn btn-sub" onclick="resetTimer()">RESET</button>
@@ -131,14 +156,17 @@
     let sessionCount = 1;
 
     const timerDisplay = document.getElementById('timer');
-    const sessionDisplay = document.getElementById('session-count');
     const wrapper = document.getElementById('main-wrapper');
+    const dots = document.querySelectorAll('.dot');
 
     function updateDisplay() {
         const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.innerHTML = `${m} <span style="font-size: 0.7em; vertical-align: middle; opacity: 0.2;">:</span> ${s}`;
         
+        // 탭 제목 실시간 업데이트 (추가 서비스!)
+        document.title = `${m}:${s} - ${isWorking ? 'Focus' : 'Break'}`;
+
         if (!isWorking) {
             timerDisplay.classList.add('break-mode');
             wrapper.classList.add('break-mode-active');
@@ -146,6 +174,12 @@
             timerDisplay.classList.remove('break-mode');
             wrapper.classList.remove('break-mode-active');
         }
+
+        // 도트 업데이트
+        dots.forEach((dot, index) => {
+            if (index < sessionCount) dot.classList.add('active');
+            else dot.classList.remove('active');
+        });
     }
 
     function startTimer() {
@@ -171,7 +205,6 @@
         isWorking = true;
         sessionCount = 1;
         timeLeft = 25 * 60;
-        sessionDisplay.textContent = `ROUND 1 / 4`;
         updateDisplay();
     }
 
@@ -189,7 +222,6 @@
             isWorking = true;
             timeLeft = 25 * 60;
         }
-        sessionDisplay.textContent = `ROUND ${sessionCount} / 4`;
         updateDisplay();
         startTimer();
     }
